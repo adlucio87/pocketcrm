@@ -169,109 +169,136 @@ class _AddContactSheetState extends ConsumerState<_AddContactSheet> {
         right: 24,
         top: 24,
       ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Nuovo Contatto',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.import_contacts),
-                  tooltip: 'Importa da rubrica',
-                  onPressed: () async {
-                    if (await fc.FlutterContacts.permissions.request(fc.PermissionType.read) == fc.PermissionStatus.granted) {
-                      final contactId = await fc.FlutterContacts.native.showPicker();
-                      if (contactId != null) {
-                        final contact = await fc.FlutterContacts.get(contactId);
-                        if (contact != null) {
-                          setState(() {
-                            _firstNameController.text = contact.name?.first ?? '';
-                            _lastNameController.text = contact.name?.last ?? '';
-                            if (contact.phones.isNotEmpty) {
-                              _phoneController.text = contact.phones.first.number;
-                            }
-                            if (contact.emails.isNotEmpty) {
-                              _emailController.text = contact.emails.first.address;
-                            }
-                          });
+      child: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Nuovo Contatto',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.import_contacts),
+                    tooltip: 'Importa da rubrica',
+                    onPressed: () async {
+                      if (await fc.FlutterContacts.permissions.request(
+                            fc.PermissionType.read,
+                          ) ==
+                          fc.PermissionStatus.granted) {
+                        final contactId = await fc.FlutterContacts.native
+                            .showPicker();
+                        if (contactId != null) {
+                          final contact = await fc.FlutterContacts.get(
+                            contactId,
+                            properties: {
+                              fc.ContactProperty.name,
+                              fc.ContactProperty.phone,
+                              fc.ContactProperty.email,
+                            },
+                          );
+                          if (contact != null) {
+                            setState(() {
+                              _firstNameController.text =
+                                  contact.name?.first ?? '';
+                              _lastNameController.text =
+                                  contact.name?.last ?? '';
+                              if (contact.phones.isNotEmpty) {
+                                _phoneController.text =
+                                    contact.phones.first.number;
+                              }
+                              if (contact.emails.isNotEmpty) {
+                                _emailController.text =
+                                    contact.emails.first.address;
+                              }
+                            });
+                          }
                         }
                       }
-                    }
-                  },
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              TextFormField(
+                controller: _firstNameController,
+                decoration: const InputDecoration(labelText: 'Nome'),
+                validator: (v) => v?.isEmpty == true ? 'Obbligatorio' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _lastNameController,
+                decoration: const InputDecoration(labelText: 'Cognome'),
+                validator: (v) => v?.isEmpty == true ? 'Obbligatorio' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _phoneController,
+                decoration: const InputDecoration(
+                  labelText: 'Telefono (Mobile)',
                 ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            TextFormField(
-              controller: _firstNameController,
-              decoration: const InputDecoration(labelText: 'Nome'),
-              validator: (v) => v?.isEmpty == true ? 'Obbligatorio' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _lastNameController,
-              decoration: const InputDecoration(labelText: 'Cognome'),
-              validator: (v) => v?.isEmpty == true ? 'Obbligatorio' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _phoneController,
-              decoration: const InputDecoration(labelText: 'Telefono (Mobile)'),
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  // Show a loading indicator while saving
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
+                keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    final navigator = Navigator.of(context);
+                    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-                  try {
-                    await ref
-                        .read(contactsProvider.notifier)
-                        .addContact(
-                          firstName: _firstNameController.text,
-                          lastName: _lastNameController.text,
-                          email: _emailController.text.isNotEmpty ? _emailController.text : null,
-                          phone: _phoneController.text.isNotEmpty ? _phoneController.text : null,
+                    // Show a loading indicator while saving
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) =>
+                          const Center(child: CircularProgressIndicator()),
+                    );
+
+                    try {
+                      await ref
+                          .read(contactsProvider.notifier)
+                          .addContact(
+                            firstName: _firstNameController.text,
+                            lastName: _lastNameController.text,
+                            email: _emailController.text.isNotEmpty
+                                ? _emailController.text
+                                : null,
+                            phone: _phoneController.text.isNotEmpty
+                                ? _phoneController.text
+                                : null,
+                          );
+                      if (mounted) {
+                        navigator.pop(); // Pop loading dialog
+                        navigator.pop(); // Pop add contact sheet
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        navigator.pop(); // Pop loading dialog
+                        scaffoldMessenger.showSnackBar(
+                          SnackBar(
+                            content: Text('Errore durante il salvataggio: $e'),
+                          ),
                         );
-                    if (mounted) {
-                      Navigator.pop(context); // Pop loading dialog
-                      Navigator.pop(context); // Pop add contact sheet
-                    }
-                  } catch (e) {
-                    if (mounted) {
-                      Navigator.pop(context); // Pop loading dialog
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Errore durante il salvataggio: $e')),
-                      );
+                      }
                     }
                   }
-                }
-              },
-              child: const Text('Salva'),
-            ),
-            const SizedBox(height: 32),
-          ],
+                },
+                child: const Text('Salva'),
+              ),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );

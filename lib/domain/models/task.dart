@@ -23,7 +23,9 @@ class Task with _$Task {
     if (bodyV2 is Map) {
       final blocknote = bodyV2['blocknote'];
       final blockEditor = bodyV2['blockEditor'];
-      if (blocknote is Map && blocknote['text'] != null) {
+      if (blocknote is String) {
+        bodyText = blocknote;
+      } else if (blocknote is Map && blocknote['text'] != null) {
         bodyText = blocknote['text'];
       } else if (blockEditor is Map && blockEditor['text'] != null) {
         bodyText = blockEditor['text'];

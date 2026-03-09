@@ -8,8 +8,8 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-      - SERVER_URL=http://localhost:3000
-      - FRONT_BASE_URL=http://localhost:3000
+      - SERVER_URL=${NGROK_URL:-http://localhost:3000}
+      - FRONT_BASE_URL=${NGROK_URL:-http://localhost:3000}
       - PG_DATABASE_URL=postgres://twenty:twenty@postgres:5432/default
       - POSTGRES_URL=postgres://twenty:twenty@postgres:5432/default
       - REDIS_URL=redis://redis:6379

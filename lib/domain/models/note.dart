@@ -14,4 +14,28 @@ class Note with _$Note {
   }) = _Note;
 
   factory Note.fromJson(Map<String, dynamic> json) => _$NoteFromJson(json);
+
+  factory Note.fromTwenty(Map<String, dynamic> json) {
+    String? bodyText = '';
+    final bodyV2 = json['bodyV2'];
+    if (bodyV2 is Map) {
+      if (bodyV2['blocknote'] is String) {
+        bodyText = bodyV2['blocknote'];
+      } else if (bodyV2['blocknote'] is Map) {
+        bodyText = bodyV2['blocknote']['text'];
+      } else if (bodyV2['blockEditor'] is Map) {
+        bodyText = bodyV2['blockEditor']['text'];
+      }
+    } else if (json['body'] is String) {
+      bodyText = json['body'];
+    }
+
+    return Note(
+      id: json['id'],
+      body: bodyText ?? '',
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : null,
+    );
+  }
 }

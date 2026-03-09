@@ -70,17 +70,22 @@ query GetCompanies($filter: CompanyFilterInput, $first: Int) {
 
 # Note per contatto
 query GetNotesByPerson($personId: UUID!) {
-  notes(filter: { noteTargets: { some: { personId: { eq: $personId } } } },
-        orderBy: { createdAt: DescNullsLast }) {
+  noteTargets(filter: { targetPersonId: { eq: $personId } }, orderBy: { createdAt: DescNullsLast }) {
     edges {
-      node { id body createdAt updatedAt }
+      node {
+        note { id bodyV2 { blocknote } createdAt updatedAt }
+      }
     }
   }
 }
 
 # Crea nota
 mutation CreateNote($input: NoteCreateInput!) {
-  createNote(data: $input) { id body createdAt }
+  createNote(data: $input) { id bodyV2 { blocknote } createdAt }
+}
+
+mutation CreateNoteTarget($input: NoteTargetCreateInput!) {
+  createNoteTarget(data: $input) { id }
 }
 
 # Lista task
@@ -88,7 +93,7 @@ query GetTasks($filter: TaskFilterInput) {
   tasks(filter: $filter, orderBy: { createdAt: DescNullsLast }) {
     edges {
       node {
-        id title bodyV2 { blocknote { text } } status dueAt createdAt
+        id title bodyV2 { blocknote } status dueAt createdAt
       }
     }
   }
@@ -102,4 +107,8 @@ mutation CreateTask($input: TaskCreateInput!) {
 # Completa task
 mutation UpdateTask($id: UUID!, $input: TaskUpdateInput!) {
   updateTask(id: $id, data: $input) { id status }
+}
+
+mutation CreateTaskTarget($input: TaskTargetCreateInput!) {
+  createTaskTarget(data: $input) { id }
 }

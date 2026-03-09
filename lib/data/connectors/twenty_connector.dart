@@ -227,10 +227,12 @@ class TwentyConnector implements CRMRepository {
   Future<List<Note>> getNotesByContact(String contactId) async {
     const String query = r'''
       query GetNotesByPerson($personId: UUID!) {
-        notes(filter: { noteTargets: { some: { personId: { eq: $personId } } } },
-              orderBy: { createdAt: DescNullsLast }) {
+        noteTargets(filter: { targetPersonId: { eq: $personId } },
+                    orderBy: { createdAt: DescNullsLast }) {
           edges {
-            node { id body createdAt updatedAt }
+            node {
+              note { id bodyV2 { blocknote } createdAt updatedAt }
+            }
           }
         }
       }
@@ -244,19 +246,18 @@ class TwentyConnector implements CRMRepository {
     final QueryResult result = await client.query(options);
     if (result.hasException) throw Exception(result.exception.toString());
 
-    final edges = result.data?['notes']?['edges'] as List?;
+    final edges = result.data?['noteTargets']?['edges'] as List?;
     if (edges == null) return [];
 
-    return edges.map((e) {
-      final node = e['node'];
-      return Note(
-        id: node['id'],
-        body: node['body'] ?? '',
-        createdAt: node['createdAt'] != null
-            ? DateTime.parse(node['createdAt'])
-            : null,
-      );
-    }).toList();
+    return edges
+        .map((e) {
+          final node = e['node'];
+          if (node == null || node['note'] == null) return null;
+          return Note.fromTwenty(node['note'] as Map<String, dynamic>);
+        })
+        .where((e) => e != null)
+        .cast<Note>()
+        .toList();
   }
 
   @override
@@ -266,16 +267,11 @@ class TwentyConnector implements CRMRepository {
   }) async {
     const String mutation = r'''
       mutation CreateNote($input: NoteCreateInput!) {
-        createNote(data: $input) { id body createdAt }
+        createNote(data: $input) { id bodyV2 { blocknote } createdAt }
       }
     ''';
 
-    final input = {
-      'body': body,
-      'noteTargets': [
-        {'personId': contactId},
-      ],
-    };
+    final input = {'body': body};
 
     final MutationOptions options = MutationOptions(
       document: gql(mutation),
@@ -286,13 +282,26 @@ class TwentyConnector implements CRMRepository {
     if (result.hasException) throw Exception(result.exception.toString());
 
     final data = result.data?['createNote'];
-    return Note(
-      id: data['id'],
-      body: data['body'] ?? '',
-      createdAt: data['createdAt'] != null
-          ? DateTime.parse(data['createdAt'])
-          : null,
+    final note = Note.fromTwenty(data as Map<String, dynamic>);
+
+    const String targetMutation = r'''
+      mutation CreateNoteTarget($input: NoteTargetCreateInput!) {
+        createNoteTarget(data: $input) { id }
+      }
+    ''';
+    final targetInput = {'noteId': note.id, 'targetPersonId': contactId};
+    final MutationOptions targetOptions = MutationOptions(
+      document: gql(targetMutation),
+      variables: {'input': targetInput},
     );
+    final targetResult = await client.mutate(targetOptions);
+    if (targetResult.hasException) {
+      print(
+        'Warning: Failed to link note to contact: ${targetResult.exception}',
+      );
+    }
+
+    return note;
   }
 
   @override
@@ -302,7 +311,7 @@ class TwentyConnector implements CRMRepository {
         tasks(filter: $filter, orderBy: { createdAt: DescNullsLast }) {
           edges {
             node {
-              id title bodyV2 { blocknote { text } } status dueAt createdAt
+              id title bodyV2 { blocknote } status dueAt createdAt
             }
           }
         }
@@ -349,10 +358,6 @@ class TwentyConnector implements CRMRepository {
       'title': title,
       if (body != null) 'body': body,
       if (dueAt != null) 'dueAt': dueAt.toIso8601String(),
-      if (contactId != null)
-        'taskTargets': [
-          {'personId': contactId},
-        ],
     };
 
     final MutationOptions options = MutationOptions(
@@ -363,6 +368,27 @@ class TwentyConnector implements CRMRepository {
     final QueryResult result = await client.mutate(options);
     if (result.hasException) throw Exception(result.exception.toString());
 
+    if (contactId != null) {
+      final taskId = result.data?['createTask']?['id'];
+      if (taskId != null) {
+        const String targetMutation = r'''
+          mutation CreateTaskTarget($input: TaskTargetCreateInput!) {
+            createTaskTarget(data: $input) { id }
+          }
+        ''';
+        final targetInput = {'taskId': taskId, 'targetPersonId': contactId};
+        final MutationOptions targetOptions = MutationOptions(
+          document: gql(targetMutation),
+          variables: {'input': targetInput},
+        );
+        final targetResult = await client.mutate(targetOptions);
+        if (targetResult.hasException) {
+          print(
+            'Warning: Failed to link task to contact: ${targetResult.exception}',
+          );
+        }
+      }
+    }
     final data = result.data?['createTask'];
     return Task(
       id: data['id'],

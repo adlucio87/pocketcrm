@@ -7,7 +7,7 @@ class StorageService {
   final SharedPreferences _fallback;
   final Map<String, String> _cache = {};
 
-  static const _sensitiveKeys = {'api_token'};
+  static const _sensitiveKeys = <String>{};
 
   StorageService(this._secureStorage, this._fallback);
 
@@ -20,8 +20,12 @@ class StorageService {
 
     if (kDebugMode) print('StorageService: Writing $key -> $value');
 
-    // Only write to SharedPreferences fallback if it's not a sensitive key
-    if (!_sensitiveKeys.contains(key)) {
+    final bool isMacOSDebug =
+        kDebugMode && defaultTargetPlatform == TargetPlatform.macOS;
+    final bool blockPlaintext = _sensitiveKeys.contains(key) && !isMacOSDebug;
+
+    // Only write to SharedPreferences fallback if it's not a sensitive key (except for macOS debug workaround)
+    if (!blockPlaintext) {
       if (value != null) {
         await _fallback.setString(key, value);
       } else {
@@ -76,8 +80,12 @@ class StorageService {
       return secureValue;
     }
 
-    // Do not read sensitive keys from the plaintext fallback
-    if (_sensitiveKeys.contains(key)) {
+    final bool isMacOSDebug =
+        kDebugMode && defaultTargetPlatform == TargetPlatform.macOS;
+    final bool blockPlaintext = _sensitiveKeys.contains(key) && !isMacOSDebug;
+
+    // Do not read sensitive keys from the plaintext fallback (except for macOS debug workaround)
+    if (blockPlaintext) {
       return null;
     }
 
