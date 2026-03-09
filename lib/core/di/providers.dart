@@ -77,6 +77,7 @@ class Contacts extends _$Contacts {
         email: email,
         phone: phone,
       );
+      // Refresh the contacts list
       return repo.getContacts();
     });
   }
