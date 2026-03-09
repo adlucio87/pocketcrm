@@ -6,7 +6,7 @@ part of 'providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$sharedPreferencesHash() => r'3a9f8412df34c1653d08100c9826aa2125b80f7f';
+String _$sharedPreferencesHash() => r'1a6250efdc19e86c923ceb598a77ff74d64378e6';
 
 /// See also [sharedPreferences].
 @ProviderFor(sharedPreferences)
@@ -23,7 +23,7 @@ final sharedPreferencesProvider = Provider<SharedPreferences>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SharedPreferencesRef = ProviderRef<SharedPreferences>;
-String _$storageServiceHash() => r'4c403eaad74c45dbf0c610f81e1d900cde9a7ce0';
+String _$storageServiceHash() => r'1ea1af77c66816681747b964cc84ce9502cd3182';
 
 /// See also [storageService].
 @ProviderFor(storageService)
@@ -40,7 +40,7 @@ final storageServiceProvider = Provider<StorageService>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef StorageServiceRef = ProviderRef<StorageService>;
-String _$crmRepositoryHash() => r'79becb479b3eb2cd2061282801710ac980410308';
+String _$crmRepositoryHash() => r'a765af7f2be212f8ad26f4c7de8239c3125f3486';
 
 /// See also [crmRepository].
 @ProviderFor(crmRepository)

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:pocketcrm/core/di/providers.dart';
 import 'package:pocketcrm/presentation/onboarding/welcome_screen.dart';
@@ -15,7 +16,7 @@ import 'package:pocketcrm/core/di/auth_state.dart';
 part 'router.g.dart';
 
 @riverpod
-GoRouter appRouter(AppRouterRef ref) {
+GoRouter appRouter(Ref ref) {
   final authState = ref.watch(authStateProvider);
 
   return GoRouter(

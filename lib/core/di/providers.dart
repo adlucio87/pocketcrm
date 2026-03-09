@@ -7,17 +7,18 @@ import 'package:pocketcrm/domain/models/company.dart';
 import 'package:pocketcrm/domain/models/contact.dart';
 import 'package:pocketcrm/domain/models/task.dart';
 import 'package:pocketcrm/domain/repositories/crm_repository.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'providers.g.dart';
 
 @Riverpod(keepAlive: true)
-SharedPreferences sharedPreferences(SharedPreferencesRef ref) {
+SharedPreferences sharedPreferences(Ref ref) {
   throw UnimplementedError(); // Overridden in main.dart
 }
 
 @Riverpod(keepAlive: true)
-StorageService storageService(StorageServiceRef ref) {
+StorageService storageService(Ref ref) {
   const secure = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
@@ -26,7 +27,7 @@ StorageService storageService(StorageServiceRef ref) {
 }
 
 @Riverpod(keepAlive: true)
-Future<CRMRepository> crmRepository(CrmRepositoryRef ref) async {
+Future<CRMRepository> crmRepository(Ref ref) async {
   final storage = ref.watch(storageServiceProvider);
   final baseUrl = await storage.read(key: 'instance_url');
   final apiToken = await storage.read(key: 'api_token');
