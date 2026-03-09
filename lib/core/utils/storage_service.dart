@@ -5,12 +5,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 class StorageService {
   final FlutterSecureStorage _secureStorage;
   final SharedPreferences _fallback;
+  final Map<String, String> _cache = {};
 
   static const _sensitiveKeys = {'api_token'};
 
   StorageService(this._secureStorage, this._fallback);
 
   Future<void> write({required String key, required String? value}) async {
+    if (value != null) {
+      _cache[key] = value;
+    } else {
+      _cache.remove(key);
+    }
+
     if (kDebugMode) print('StorageService: Writing $key -> $value');
 
     // Only write to SharedPreferences fallback if it's not a sensitive key
@@ -45,6 +52,13 @@ class StorageService {
   }
 
   Future<String?> read({required String key}) async {
+    if (_cache.containsKey(key)) {
+      if (kDebugMode) {
+        print('StorageService: $key read from in-memory cache');
+      }
+      return _cache[key];
+    }
+
     String? secureValue;
     try {
       secureValue = await _secureStorage.read(key: key);
@@ -57,7 +71,10 @@ class StorageService {
       }
     }
 
-    if (secureValue != null) return secureValue;
+    if (secureValue != null) {
+      _cache[key] = secureValue;
+      return secureValue;
+    }
 
     // Do not read sensitive keys from the plaintext fallback
     if (_sensitiveKeys.contains(key)) {
@@ -68,10 +85,16 @@ class StorageService {
     if (kDebugMode && fallbackValue != null) {
       print('StorageService: $key read from SharedPreferences fallback');
     }
+
+    if (fallbackValue != null) {
+      _cache[key] = fallbackValue;
+    }
+
     return fallbackValue;
   }
 
   Future<void> delete({required String key}) async {
+    _cache.remove(key);
     try {
       await _secureStorage.delete(key: key);
     } catch (e) {}
@@ -79,6 +102,7 @@ class StorageService {
   }
 
   Future<void> deleteAll() async {
+    _cache.clear();
     try {
       await _secureStorage.deleteAll();
     } catch (e) {}
