@@ -65,6 +65,7 @@ class Contacts extends _$Contacts {
     required String firstName,
     required String lastName,
     String? email,
+    String? phone,
   }) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
@@ -73,6 +74,7 @@ class Contacts extends _$Contacts {
         firstName: firstName,
         lastName: lastName,
         email: email,
+        phone: phone,
       );
       return repo.getContacts();
     });
@@ -136,11 +138,11 @@ class Tasks extends _$Tasks {
     });
   }
 
-  Future<void> addTask(String title, {DateTime? dueAt}) async {
+  Future<void> addTask(String title, {DateTime? dueAt, String? contactId}) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final repo = await ref.read(crmRepositoryProvider.future);
-      await repo.createTask(title: title, dueAt: dueAt);
+      await repo.createTask(title: title, dueAt: dueAt, contactId: contactId);
       return repo.getTasks();
     });
   }

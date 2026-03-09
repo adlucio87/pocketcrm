@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketcrm/core/di/providers.dart';
 import 'package:pocketcrm/core/di/auth_state.dart';
+import 'package:pocketcrm/domain/models/contact.dart';
 
 class TasksScreen extends ConsumerStatefulWidget {
   const TasksScreen({super.key});
@@ -115,9 +116,11 @@ class _AddTaskSheet extends ConsumerStatefulWidget {
 class _AddTaskSheetState extends ConsumerState<_AddTaskSheet> {
   final _titleController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  String? _selectedContactId;
 
   @override
   Widget build(BuildContext context) {
+    final contactsAsync = ref.watch(contactsProvider);
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -146,13 +149,49 @@ class _AddTaskSheetState extends ConsumerState<_AddTaskSheet> {
               validator: (v) =>
                   v?.isEmpty == true ? 'Inserisci un titolo' : null,
             ),
+            const SizedBox(height: 16),
+            contactsAsync.when(
+              data: (contacts) => Autocomplete<Contact>(
+                optionsBuilder: (TextEditingValue textEditingValue) {
+                  if (textEditingValue.text.isEmpty) {
+                    return const Iterable<Contact>.empty();
+                  }
+                  return contacts.where((Contact contact) {
+                    final fullName = '${contact.firstName} ${contact.lastName}'.toLowerCase();
+                    return fullName.contains(textEditingValue.text.toLowerCase());
+                  });
+                },
+                displayStringForOption: (Contact option) => '${option.firstName} ${option.lastName}',
+                onSelected: (Contact selection) {
+                  setState(() {
+                    _selectedContactId = selection.id;
+                  });
+                },
+                fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                  return TextFormField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    onEditingComplete: onEditingComplete,
+                    decoration: const InputDecoration(
+                      labelText: 'Cerca e collega contatto',
+                      hintText: 'Inizia a digitare il nome...',
+                    ),
+                  );
+                },
+              ),
+              loading: () => const CircularProgressIndicator(),
+              error: (err, stack) => Text('Errore contatti: $err'),
+            ),
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
                   await ref
                       .read(tasksProvider.notifier)
-                      .addTask(_titleController.text);
+                      .addTask(
+                        _titleController.text,
+                        contactId: _selectedContactId,
+                      );
                   if (mounted) Navigator.pop(context);
                 }
               },

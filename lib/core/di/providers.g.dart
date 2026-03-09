@@ -57,7 +57,7 @@ final crmRepositoryProvider = FutureProvider<CRMRepository>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CrmRepositoryRef = FutureProviderRef<CRMRepository>;
-String _$contactsHash() => r'451643ab2a62013b7ba4b56e43e0c7aae399bdf3';
+String _$contactsHash() => r'c94691d08a44f6b692629af73713f48d0f7295aa';
 
 /// See also [Contacts].
 @ProviderFor(Contacts)
@@ -242,7 +242,7 @@ final companiesProvider =
     );
 
 typedef _$Companies = AutoDisposeAsyncNotifier<List<Company>>;
-String _$tasksHash() => r'86b50c660fd27bffc45d959ff678fde35cb638f4';
+String _$tasksHash() => r'01b1d465d620951df878c13f870a8a479dab7562';
 
 /// See also [Tasks].
 @ProviderFor(Tasks)

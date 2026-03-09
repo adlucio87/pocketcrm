@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pocketcrm/core/di/providers.dart';
 import 'package:pocketcrm/core/di/auth_state.dart';
+import 'package:flutter_contacts/flutter_contacts.dart' as fc;
 
 class ContactsScreen extends ConsumerStatefulWidget {
   const ContactsScreen({super.key});
@@ -155,6 +156,7 @@ class _AddContactSheetState extends ConsumerState<_AddContactSheet> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -172,9 +174,38 @@ class _AddContactSheetState extends ConsumerState<_AddContactSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'Nuovo Contatto',
-              style: Theme.of(context).textTheme.headlineSmall,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Nuovo Contatto',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.import_contacts),
+                  tooltip: 'Importa da rubrica',
+                  onPressed: () async {
+                    if (await fc.FlutterContacts.permissions.request(fc.PermissionType.read) == fc.PermissionStatus.granted) {
+                      final contactId = await fc.FlutterContacts.native.showPicker();
+                      if (contactId != null) {
+                        final contact = await fc.FlutterContacts.get(contactId);
+                        if (contact != null) {
+                          setState(() {
+                            _firstNameController.text = contact.name?.first ?? '';
+                            _lastNameController.text = contact.name?.last ?? '';
+                            if (contact.phones.isNotEmpty) {
+                              _phoneController.text = contact.phones.first.number;
+                            }
+                            if (contact.emails.isNotEmpty) {
+                              _emailController.text = contact.emails.first.address;
+                            }
+                          });
+                        }
+                      }
+                    }
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 24),
             TextFormField(
@@ -194,6 +225,12 @@ class _AddContactSheetState extends ConsumerState<_AddContactSheet> {
               decoration: const InputDecoration(labelText: 'Email'),
               keyboardType: TextInputType.emailAddress,
             ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _phoneController,
+              decoration: const InputDecoration(labelText: 'Telefono (Mobile)'),
+              keyboardType: TextInputType.phone,
+            ),
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () async {
@@ -203,7 +240,8 @@ class _AddContactSheetState extends ConsumerState<_AddContactSheet> {
                       .addContact(
                         firstName: _firstNameController.text,
                         lastName: _lastNameController.text,
-                        email: _emailController.text,
+                        email: _emailController.text.isNotEmpty ? _emailController.text : null,
+                        phone: _phoneController.text.isNotEmpty ? _phoneController.text : null,
                       );
                   if (mounted) Navigator.pop(context);
                 }

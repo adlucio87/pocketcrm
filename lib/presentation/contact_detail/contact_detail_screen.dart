@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketcrm/core/di/providers.dart';
 import 'package:pocketcrm/domain/models/contact.dart';
+import 'package:flutter_contacts/flutter_contacts.dart' as fc;
 
 class ContactDetailScreen extends ConsumerWidget {
   final String id;
@@ -64,6 +65,23 @@ class ContactDetailScreen extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: () async {
+              if (await fc.FlutterContacts.permissions.request(fc.PermissionType.write) == fc.PermissionStatus.granted) {
+                final emails = contact.email != null ? [fc.Email(address: contact.email!)] : <fc.Email>[];
+                final phones = contact.phone != null ? [fc.Phone(number: contact.phone!)] : <fc.Phone>[];
+                final newContact = fc.Contact(
+                  name: fc.Name(first: contact.firstName, last: contact.lastName),
+                  emails: emails,
+                  phones: phones,
+                );
+                await fc.FlutterContacts.native.showCreator(contact: newContact);
+              }
+            },
+            icon: const Icon(Icons.save_alt),
+            label: const Text('Salva in Rubrica'),
           ),
           const SizedBox(height: 24),
           const Text(

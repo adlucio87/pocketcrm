@@ -50,7 +50,7 @@ GoRouter appRouter(AppRouterRef ref) {
         return '/onboarding';
       }
 
-      if (hasToken && state.matchedLocation == '/') {
+      if (hasToken && isOnboarding) {
         print('Router redirect: -> /contacts');
         return '/contacts';
       }
