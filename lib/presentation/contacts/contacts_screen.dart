@@ -77,6 +77,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           return RefreshIndicator(
             onRefresh: () async => ref.refresh(contactsProvider.future),
             child: ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
               itemCount: contacts.length,
               separatorBuilder: (context, index) => const Divider(height: 1),
               itemBuilder: (context, index) {
@@ -235,15 +236,36 @@ class _AddContactSheetState extends ConsumerState<_AddContactSheet> {
             ElevatedButton(
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
-                  await ref
-                      .read(contactsProvider.notifier)
-                      .addContact(
-                        firstName: _firstNameController.text,
-                        lastName: _lastNameController.text,
-                        email: _emailController.text.isNotEmpty ? _emailController.text : null,
-                        phone: _phoneController.text.isNotEmpty ? _phoneController.text : null,
+                  // Show a loading indicator while saving
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+
+                  try {
+                    await ref
+                        .read(contactsProvider.notifier)
+                        .addContact(
+                          firstName: _firstNameController.text,
+                          lastName: _lastNameController.text,
+                          email: _emailController.text.isNotEmpty ? _emailController.text : null,
+                          phone: _phoneController.text.isNotEmpty ? _phoneController.text : null,
+                        );
+                    if (mounted) {
+                      Navigator.pop(context); // Pop loading dialog
+                      Navigator.pop(context); // Pop add contact sheet
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      Navigator.pop(context); // Pop loading dialog
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Errore durante il salvataggio: $e')),
                       );
-                  if (mounted) Navigator.pop(context);
+                    }
+                  }
                 }
               },
               child: const Text('Salva'),
