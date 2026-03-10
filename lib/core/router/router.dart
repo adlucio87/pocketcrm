@@ -9,6 +9,7 @@ import 'package:pocketcrm/presentation/contact_detail/contact_detail_screen.dart
 import 'package:pocketcrm/presentation/companies/companies_screen.dart';
 import 'package:pocketcrm/presentation/companies/company_detail_screen.dart';
 import 'package:pocketcrm/presentation/tasks/tasks_screen.dart';
+import 'package:pocketcrm/presentation/settings/settings_screen.dart';
 import 'package:pocketcrm/shared/main_shell.dart';
 import 'package:pocketcrm/core/di/auth_state.dart';
 
@@ -112,6 +113,10 @@ GoRouter appRouter(AppRouterRef ref) {
           GoRoute(
             path: '/tasks',
             builder: (context, state) => const TasksScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
           ),
         ],
       ),

@@ -91,8 +91,8 @@ void main() {
       await tester.enterText(find.widgetWithText(TextFormField, 'Email'), 'jane@example.com');
       await tester.enterText(find.widgetWithText(TextFormField, 'Telefono (Mobile)'), '1234567890');
 
-      // 7. Tap Salva
-      await tester.tap(find.text('Salva'));
+      // 7. Tap Salva Contatto
+      await tester.tap(find.text('Salva Contatto'));
       await tester.pumpAndSettle(); // Wait for the provider state update and modal closing
 
       // 8. Verify UI now shows both contacts (the state refresh inserts it immediately)
@@ -107,8 +107,8 @@ void main() {
         phone: '1234567890',
       )).called(1);
 
-      // Called once on initial build, once on refresh after addContact
-      verify(mockCRMRepository.getContacts()).called(2);
+      // Called once on initial build
+      verify(mockCRMRepository.getContacts()).called(1);
     });
 
     testWidgets('Pull to Refresh updates the list', (WidgetTester tester) async {

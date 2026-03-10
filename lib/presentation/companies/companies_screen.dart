@@ -68,7 +68,7 @@ class CompaniesScreen extends ConsumerWidget {
                   ),
                   title: Text(
                     company.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,21 +77,23 @@ class CompaniesScreen extends ConsumerWidget {
                       if (company.domainName != null)
                         Text(
                           company.domainName!,
-                          style: TextStyle(color: Colors.blue.shade700, fontSize: 13),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                         ),
                       const SizedBox(height: 2),
                       Row(
                         children: [
                           if (company.industry != null) ...[
-                            Icon(Icons.category, size: 12, color: Colors.grey.shade600),
+                            Icon(Icons.category, size: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                             const SizedBox(width: 4),
-                            Text(company.industry!, style: const TextStyle(fontSize: 12)),
+                            Text(company.industry!, style: Theme.of(context).textTheme.bodySmall),
                             const SizedBox(width: 12),
                           ],
                           if (company.employeesCount != null) ...[
-                            Icon(Icons.people, size: 12, color: Colors.grey.shade600),
+                            Icon(Icons.people, size: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                             const SizedBox(width: 4),
-                            Text('${company.employeesCount}', style: const TextStyle(fontSize: 12)),
+                            Text('${company.employeesCount}', style: Theme.of(context).textTheme.bodySmall),
                           ],
                         ],
                       ),
