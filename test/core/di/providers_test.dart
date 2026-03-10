@@ -39,7 +39,7 @@ void main() {
         email: null,
         phone: null,
       );
-      final updatedContacts = [...initialContacts, newContact];
+      final updatedContacts = [newContact, ...initialContacts]; // Note: order is newest first
 
       // 2. Mock repository behavior
       when(mockCRMRepository.getContacts()).thenAnswer((_) async => 
@@ -58,10 +58,6 @@ void main() {
       // wait for build to finish
       await container.read(contactsProvider.future);
 
-      // Change getContacts to return updatedContacts for the refresh
-      when(mockCRMRepository.getContacts()).thenAnswer((_) async =>
-          (contacts: updatedContacts, endCursor: null, hasNextPage: false));
-
       await contactsNotifier.addContact(
         firstName: 'Jane',
         lastName: 'Smith',
@@ -73,7 +69,7 @@ void main() {
       expect(container.read(contactsProvider).value, updatedContacts);
 
       // 5. Verify repository methods were called
-      verify(mockCRMRepository.getContacts()).called(2); // Once on build, once after addContact
+      verify(mockCRMRepository.getContacts()).called(1); // Once on build
       verify(mockCRMRepository.createContact(
         firstName: 'Jane',
         lastName: 'Smith',
@@ -82,7 +78,7 @@ void main() {
       )).called(1);
     });
 
-    test('addContact handles errors and updates state with error', () async {
+    test('addContact handles errors and does not update state on error', () async {
       final initialContacts = [
         Contact(id: '1', firstName: 'John', lastName: 'Doe', email: null, phone: null),
       ];
@@ -100,13 +96,18 @@ void main() {
       final contactsNotifier = container.read(contactsProvider.notifier);
       await container.read(contactsProvider.future);
 
-      await contactsNotifier.addContact(
-        firstName: 'Error',
-        lastName: 'User',
-      );
+      try {
+        await contactsNotifier.addContact(
+          firstName: 'Error',
+          lastName: 'User',
+        );
+        fail('Should have thrown');
+      } catch (e) {
+        expect(e, isException);
+      }
 
-      // State should contain the error
-      expect(container.read(contactsProvider).hasError, isTrue);
+      // State should remain unchanged
+      expect(container.read(contactsProvider).value, initialContacts);
     });
   });
 }

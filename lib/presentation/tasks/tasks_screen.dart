@@ -90,12 +90,11 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                   ),
                   title: Text(
                     task.title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       decoration: task.completed == true
                           ? TextDecoration.lineThrough
                           : null,
-                      color: task.completed == true ? Colors.grey : null,
+                      color: task.completed == true ? Theme.of(context).textTheme.bodySmall?.color : null,
                     ),
                   ),
                   subtitle: Column(
@@ -104,10 +103,12 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                       Builder(
                         builder: (context) {
                           if (task.dueAt == null) {
-                            return const Text('Nessuna scadenza');
+                            return Text('Nessuna scadenza', style: Theme.of(context).textTheme.bodySmall);
                           }
                           
-                          Color? dateColor;
+                          Color? dateColor = Theme.of(context).textTheme.bodySmall?.color;
+                          FontWeight? dateWeight = FontWeight.w400;
+
                           if (task.completed != true) {
                             final now = DateTime.now();
                             final today = DateTime(now.year, now.month, now.day);
@@ -116,24 +117,23 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                             
                             final difference = dueDay.difference(today).inDays;
                             
-                            if (difference < 0) {
-                              dateColor = Colors.red.shade700; // Overdue
-                            } else if (difference == 0) {
-                              dateColor = Colors.red.shade700; // Today
-                            } else if (difference > 0 && difference <= 3) {
+                            if (difference <= 0) {
+                              dateColor = Theme.of(context).colorScheme.error; // Overdue or today
+                              dateWeight = FontWeight.w600;
+                            } else if (difference <= 3) {
                               dateColor = Colors.orange.shade700; // Next 3 days
                             }
                           }
                           
                           return Row(
                             children: [
-                              Icon(Icons.calendar_today, size: 14, color: dateColor),
+                              Icon(Icons.calendar_today, size: 14, color: task.completed == true ? Theme.of(context).textTheme.bodySmall?.color : dateColor),
                               const SizedBox(width: 4),
                               Text(
                                 'Scadenza: ${task.dueAt!.toLocal().toString().split(' ')[0]}',
-                                style: TextStyle(
-                                  color: task.completed == true ? Colors.grey : dateColor,
-                                  fontWeight: dateColor != null ? FontWeight.bold : null,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: task.completed == true ? Theme.of(context).textTheme.bodySmall?.color : dateColor,
+                                  fontWeight: task.completed == true ? FontWeight.w400 : dateWeight,
                                 ),
                               ),
                             ],

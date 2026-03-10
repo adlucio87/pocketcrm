@@ -57,9 +57,9 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         title: const Text('Contatti'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => ref.read(authStateProvider.notifier).logout(),
-            tooltip: 'Logout / Reset',
+            icon: const Icon(Icons.settings),
+            onPressed: () => context.push('/settings'),
+            tooltip: 'Impostazioni',
           ),
         ],
         bottom: PreferredSize(
@@ -159,10 +159,11 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                   ),
                   title: Text(
                     '${contact.firstName} ${contact.lastName}',
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                   subtitle: Text(
                     contact.companyName ?? contact.email ?? 'Nessun dettaglio',
+                    style: Theme.of(context).textTheme.bodySmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

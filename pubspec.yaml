@@ -48,6 +48,8 @@ dependencies:
   flutter_contacts: ^2.0.0
   url_launcher: ^6.3.2
   shimmer: ^3.0.0
+  google_fonts: ^8.0.2
+  shared_preferences: ^2.5.4
 
 
 dev_dependencies:

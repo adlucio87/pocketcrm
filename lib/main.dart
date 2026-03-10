@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pocketcrm/core/router/router.dart';
-import 'package:pocketcrm/core/theme/theme.dart';
+import 'package:pocketcrm/core/theme/app_theme.dart';
+import 'package:pocketcrm/core/theme/theme_provider.dart';
 import 'package:pocketcrm/core/di/providers.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -37,7 +38,9 @@ class PocketCRMApp extends ConsumerWidget {
 
     return MaterialApp.router(
       title: 'PocketCRM',
-      theme: AppTheme.lightTheme,
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: ref.watch(themeModeProvider),
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );
