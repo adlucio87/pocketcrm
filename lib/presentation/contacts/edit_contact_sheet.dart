@@ -58,7 +58,7 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Modifica Contatto',
+                'Edit Contact',
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 24),
@@ -68,9 +68,9 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
                     child: TextFormField(
                       controller: _firstNameController,
                       enabled: !_isLoading,
-                      decoration: const InputDecoration(labelText: 'Nome'),
+                      decoration: const InputDecoration(labelText: 'First Name'),
                       validator: (v) =>
-                          v?.trim().isEmpty == true ? 'Campo obbligatorio' : null,
+                          v?.trim().isEmpty == true ? 'Required field' : null,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -78,9 +78,9 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
                     child: TextFormField(
                       controller: _lastNameController,
                       enabled: !_isLoading,
-                      decoration: const InputDecoration(labelText: 'Cognome'),
+                      decoration: const InputDecoration(labelText: 'Last Name'),
                       validator: (v) =>
-                          v?.trim().isEmpty == true ? 'Campo obbligatorio' : null,
+                          v?.trim().isEmpty == true ? 'Required field' : null,
                     ),
                   ),
                 ],
@@ -98,7 +98,7 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
                   if (v != null && v.trim().isNotEmpty) {
                     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                     if (!emailRegex.hasMatch(v.trim())) {
-                      return 'Inserisci un indirizzo email valido';
+                      return 'Please enter a valid email address';
                     }
                   }
                   return null;
@@ -109,7 +109,7 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
                 controller: _phoneController,
                 enabled: !_isLoading,
                 decoration: const InputDecoration(
-                  labelText: 'Telefono',
+                  labelText: 'Phone',
                   prefixIcon: Icon(Icons.phone),
                 ),
                 keyboardType: TextInputType.phone,
@@ -117,7 +117,7 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
                   if (v != null && v.trim().isNotEmpty) {
                     final phoneRegex = RegExp(r'^\+?[0-9]{8,15}$');
                     if (!phoneRegex.hasMatch(v.trim().replaceAll(' ', ''))) {
-                      return 'Inserisci un numero di telefono valido';
+                      return 'Please enter a valid phone number';
                     }
                   }
                   return null;
@@ -155,7 +155,7 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Salva Modifiche'),
+                    : const Text('Save Changes'),
               ),
               const SizedBox(height: 32),
             ],
@@ -187,7 +187,7 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
 
         if (mounted) {
           navigator.pop(); 
-          SnackbarHelper.showSuccess(context, 'Contatto aggiornato con successo');
+          SnackbarHelper.showSuccess(context, 'Contact updated successfully');
         }
       } catch (e) {
         if (mounted) {
@@ -196,7 +196,7 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
             errorMsg = errorMsg.replaceAll('Exception:', '').trim();
           }
           if (errorMsg.contains('INVALID_PHONE_NUMBER')) {
-            errorMsg = 'Il numero di telefono inserito non è valido.';
+            errorMsg = 'The phone number entered is invalid.';
           }
           setState(() {
             _isLoading = false;

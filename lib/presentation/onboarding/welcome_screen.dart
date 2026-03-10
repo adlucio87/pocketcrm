@@ -16,7 +16,7 @@ class WelcomeScreen extends StatelessWidget {
               const Icon(Icons.people_alt, size: 80, color: Color(0xFFE94560)),
               const SizedBox(height: 24),
               Text(
-                'PocketCRM',
+                'TwentyMobile',
                 style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.primary,
@@ -24,7 +24,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Il tuo CRM portatile sempre con te. Gestisci contatti e aziende al volo.',
+                'Your portable CRM always with you. Manage contacts and companies on the go.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
@@ -36,7 +36,7 @@ class WelcomeScreen extends StatelessWidget {
                   onPressed: () {
                     context.push('/onboarding/instance');
                   },
-                  child: const Text('Connetti il tuo CRM'),
+                  child: const Text('Connect your CRM'),
                 ),
               ),
             ],

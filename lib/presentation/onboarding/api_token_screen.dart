@@ -44,10 +44,10 @@ class _ApiTokenScreenState extends ConsumerState<ApiTokenScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Scrivi il tuo API Token di Twenty CRM.'),
+              const Text('Enter your Twenty CRM API Token.'),
               const SizedBox(height: 8),
               const Text(
-                'Dove trovo il token? Twenty → Settings → API & Webhooks',
+                'Where can I find the token? Twenty → Settings → API & Webhooks',
                 style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
               const SizedBox(height: 16),
@@ -56,12 +56,12 @@ class _ApiTokenScreenState extends ConsumerState<ApiTokenScreen> {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'API Token',
-                  hintText: 'Inserisci il token...',
+                  hintText: 'Enter token...',
                   prefixIcon: const Icon(Icons.key),
                   errorText: _error,
                 ),
                 validator: (val) {
-                  if (val == null || val.isEmpty) return 'Inserisci un token';
+                  if (val == null || val.isEmpty) return 'Please enter a token';
                   return null;
                 },
               ),
@@ -77,7 +77,7 @@ class _ApiTokenScreenState extends ConsumerState<ApiTokenScreen> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text('Connetti'),
+                    : const Text('Connect'),
               ),
               const SizedBox(height: 24),
             ],
@@ -109,7 +109,7 @@ class _ApiTokenScreenState extends ConsumerState<ApiTokenScreen> {
       if (mounted) context.go('/contacts');
     } catch (e) {
       if (mounted) {
-        setState(() => _error = 'Errore: $e');
+        setState(() => _error = 'Error: $e');
       }
     } finally {
       if (mounted) {

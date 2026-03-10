@@ -1,6 +1,6 @@
-# PocketCRM
+# TwentyMobile
 
-PocketCRM è un'applicazione mobile sviluppata in **Flutter** che funge da client unificato per CRM backend, partendo dall'integrazione con **Twenty CRM**. L'obiettivo del progetto è permettere agli utenti di gestire contatti, aziende, note e task in mobilità, con un'interfaccia moderna, veloce e reattiva.
+TwentyMobile è un'applicazione mobile sviluppata in **Flutter** che funge da client unificato per CRM backend, partendo dall'integrazione con **Twenty CRM**. L'obiettivo del progetto è permettere agli utenti di gestire contatti, aziende, note e task in mobilità, con un'interfaccia moderna, veloce e reattiva.
 
 **Namespace del progetto:** `com.luciosoft.pocketcrm`
 

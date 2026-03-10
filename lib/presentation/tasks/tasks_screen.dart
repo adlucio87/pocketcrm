@@ -41,7 +41,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
             onPressed: () {
               ref.read(taskFilterProvider.notifier).toggle();
             },
-            tooltip: 'Filtra completati',
+            tooltip: 'Filter completed',
           ),
         ],
       ),
@@ -56,10 +56,10 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                   height: MediaQuery.of(context).size.height * 0.7,
                   child: EmptyStateWidget(
                     icon: isShowingCompleted ? Icons.task_alt : Icons.checklist,
-                    title: isShowingCompleted ? 'Nessun completato' : 'Tutto limpido!',
+                    title: isShowingCompleted ? 'No completed tasks' : 'All clear!',
                     message: isShowingCompleted
-                        ? 'Non hai ancora spuntato nessun task.'
-                        : 'Non hai compiti pendenti al momento.',
+                        ? "You haven't checked any tasks yet."
+                        : 'You have no pending tasks at the moment.',
                   ),
                 ),
               ),
@@ -83,7 +83,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                         
                         SnackbarHelper.showSuccess(
                           context,
-                          val ? 'Task completato' : 'Task ripristinato',
+                          val ? 'Task completed' : 'Task restored',
                         );
                       }
                     },
@@ -103,7 +103,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                       Builder(
                         builder: (context) {
                           if (task.dueAt == null) {
-                            return Text('Nessuna scadenza', style: Theme.of(context).textTheme.bodySmall);
+                            return Text('No deadline', style: Theme.of(context).textTheme.bodySmall);
                           }
                           
                           Color? dateColor = Theme.of(context).textTheme.bodySmall?.color;
@@ -130,7 +130,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                               Icon(Icons.calendar_today, size: 14, color: task.completed == true ? Theme.of(context).textTheme.bodySmall?.color : dateColor),
                               const SizedBox(width: 4),
                               Text(
-                                'Scadenza: ${task.dueAt!.toLocal().toString().split(' ')[0]}',
+                                'Due: ${task.dueAt!.toLocal().toString().split(' ')[0]}',
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: task.completed == true ? Theme.of(context).textTheme.bodySmall?.color : dateColor,
                                   fontWeight: task.completed == true ? FontWeight.w400 : dateWeight,
@@ -164,7 +164,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
           );
         },
         loading: () => const ListSkeleton(),
-        error: (err, stack) => Center(child: Text('Errore: $err')),
+        error: (err, stack) => Center(child: Text('Error: $err')),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -218,20 +218,20 @@ class _AddTaskSheetState extends ConsumerState<_AddTaskSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Nuovo Task',
+              'New Task',
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 24),
             TextFormField(
               controller: _titleController,
               decoration: const InputDecoration(
-                labelText: 'Titolo',
-                hintText: 'Cosa devi fare?',
+                labelText: 'Title',
+                hintText: 'What needs to be done?',
               ),
               autofocus: true,
               enabled: !_isLoading,
               validator: (v) =>
-                  v?.trim().isEmpty == true ? 'Inserisci un titolo' : null,
+                  v?.trim().isEmpty == true ? 'Please enter a title' : null,
             ),
             const SizedBox(height: 16),
             contactsAsync.when(
@@ -258,14 +258,14 @@ class _AddTaskSheetState extends ConsumerState<_AddTaskSheet> {
                     onEditingComplete: onEditingComplete,
                     enabled: !_isLoading,
                     decoration: const InputDecoration(
-                      labelText: 'Cerca e collega contatto',
-                      hintText: 'Inizia a digitare il nome...',
+                      labelText: 'Search and link contact',
+                      hintText: 'Start typing name...',
                     ),
                   );
                 },
               ),
               loading: () => const CircularProgressIndicator(),
-              error: (err, stack) => Text('Errore contatti: $err'),
+              error: (err, stack) => Text('Contacts error: $err'),
             ),
             const SizedBox(height: 16),
             DueDatePicker(
@@ -316,7 +316,7 @@ class _AddTaskSheetState extends ConsumerState<_AddTaskSheet> {
                               
                           if (mounted) {
                             navigator.pop(); // Chiudi solo in caso di successo
-                            SnackbarHelper.showSuccess(context, 'Task creato con successo');
+                            SnackbarHelper.showSuccess(context, 'Task created successfully');
                           }
                         } catch (e) {
                           if (mounted) {
@@ -338,7 +338,7 @@ class _AddTaskSheetState extends ConsumerState<_AddTaskSheet> {
                       width: 20, 
                       child: CircularProgressIndicator(strokeWidth: 2)
                     )
-                  : const Text('Crea Task'),
+                  : const Text('Create Task'),
             ),
             const SizedBox(height: 32),
           ],
@@ -426,25 +426,25 @@ class _EditTaskSheetState extends ConsumerState<_EditTaskSheet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Modifica Task',
+                'Edit Task',
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 24),
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(
-                  labelText: 'Titolo',
+                  labelText: 'Title',
                 ),
                 autofocus: true,
                 enabled: !_isLoading,
                 validator: (v) =>
-                    v?.trim().isEmpty == true ? 'Inserisci un titolo' : null,
+                    v?.trim().isEmpty == true ? 'Please enter a title' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _bodyController,
                 decoration: const InputDecoration(
-                  labelText: 'Dettagli (opzionale)',
+                  labelText: 'Details (optional)',
                 ),
                 maxLines: 3,
                 minLines: 1,
@@ -501,7 +501,7 @@ class _EditTaskSheetState extends ConsumerState<_EditTaskSheet> {
                                 
                             if (mounted) {
                               navigator.pop();
-                              SnackbarHelper.showSuccess(context, 'Task modificato con successo');
+                              SnackbarHelper.showSuccess(context, 'Task updated successfully');
                             }
                           } catch (e) {
                             if (mounted) {
@@ -523,7 +523,7 @@ class _EditTaskSheetState extends ConsumerState<_EditTaskSheet> {
                         width: 20, 
                         child: CircularProgressIndicator(strokeWidth: 2)
                       )
-                    : const Text('Salva Modifiche'),
+                    : const Text('Save Changes'),
               ),
               const SizedBox(height: 32),
             ],

@@ -11,7 +11,7 @@ class DueDatePicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Scadenza', style: Theme.of(context).textTheme.labelLarge),
+        Text('Due Date', style: Theme.of(context).textTheme.labelLarge),
         const SizedBox(height: 8),
 
         // Shortcut rapidi
@@ -19,15 +19,15 @@ class DueDatePicker extends StatelessWidget {
           spacing: 8,
           children: [
             _ShortcutChip(
-              label: 'Oggi',
+              label: 'Today',
               onTap: () => onDateSelected(DateTime.now()),
             ),
             _ShortcutChip(
-              label: 'Domani',
+              label: 'Tomorrow',
               onTap: () => onDateSelected(DateTime.now().add(const Duration(days: 1))),
             ),
             _ShortcutChip(
-              label: 'Settimana',
+              label: 'Next Week',
               onTap: () => onDateSelected(DateTime.now().add(const Duration(days: 7))),
             ),
           ],
@@ -49,7 +49,7 @@ class DueDatePicker extends StatelessWidget {
           label: Text(
             selectedDate != null
                 ? _formatDate(selectedDate!)
-                : 'Scegli data',
+                : 'Pick a date',
           ),
         ),
 
@@ -57,7 +57,7 @@ class DueDatePicker extends StatelessWidget {
         if (selectedDate != null)
           TextButton(
             onPressed: () => onDateSelected(null),
-            child: const Text('Rimuovi scadenza', style: TextStyle(color: Colors.red)),
+            child: const Text('Remove due date', style: TextStyle(color: Colors.red)),
           ),
       ],
     );
@@ -66,11 +66,11 @@ class DueDatePicker extends StatelessWidget {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final diff = DateTime(date.year, date.month, date.day).difference(DateTime(now.year, now.month, now.day)).inDays;
-    if (diff == 0) return 'Oggi';
-    if (diff == 1) return 'Domani';
-    if (diff == -1) return 'Ieri';
-    if (diff > 1 && diff <= 7) return 'Tra $diff giorni';
-    if (diff < -1 && diff >= -7) return '${diff.abs()} giorni fa';
+    if (diff == 0) return 'Today';
+    if (diff == 1) return 'Tomorrow';
+    if (diff == -1) return 'Yesterday';
+    if (diff > 1 && diff <= 7) return 'In $diff days';
+    if (diff < -1 && diff >= -7) return '${diff.abs()} days ago';
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 }

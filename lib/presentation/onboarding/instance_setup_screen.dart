@@ -34,7 +34,7 @@ class _InstanceSetupScreenState extends ConsumerState<InstanceSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Configura CRM')),
+      appBar: AppBar(title: const Text('Configure CRM')),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Form(
@@ -42,20 +42,20 @@ class _InstanceSetupScreenState extends ConsumerState<InstanceSetupScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Qual è l\'URL della tua istanza Twenty CRM?'),
+              const Text('What is your Twenty CRM instance URL?'),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _controller,
                 decoration: const InputDecoration(
-                  labelText: 'URL Istanza',
-                  hintText: 'Es. http://localhost:3000',
+                  labelText: 'Instance URL',
+                  hintText: 'e.g. http://localhost:3000',
                   prefixIcon: Icon(Icons.link),
                 ),
                 validator: (val) {
                   if (val == null || val.isEmpty)
-                    return 'Inserisci un URL valido';
+                    return 'Please enter a valid URL';
                   if (!Uri.parse(val).isAbsolute)
-                    return 'L\'URL deve iniziare con http:// o https://';
+                    return 'URL must start with http:// or https://';
                   return null;
                 },
               ),
@@ -75,7 +75,7 @@ class _InstanceSetupScreenState extends ConsumerState<InstanceSetupScreen> {
                     }
                   }
                 },
-                child: const Text('Avanti'),
+                child: const Text('Next'),
               ),
               const SizedBox(height: 24),
             ],

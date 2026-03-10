@@ -37,7 +37,7 @@ class PocketCRMApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
-      title: 'PocketCRM',
+      title: 'TwentyMobile',
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ref.watch(themeModeProvider),

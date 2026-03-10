@@ -12,13 +12,13 @@ class SettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Impostazioni'),
+        title: const Text('Settings'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           const Text(
-            'Tema Applicazione',
+            'Application Theme',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -30,17 +30,17 @@ class SettingsScreen extends ConsumerWidget {
               ButtonSegment(
                 value: ThemeMode.system,
                 icon: Icon(Icons.brightness_auto),
-                label: Text('Sistema'),
+                label: Text('System'),
               ),
               ButtonSegment(
                 value: ThemeMode.light,
                 icon: Icon(Icons.light_mode),
-                label: Text('Chiaro'),
+                label: Text('Light'),
               ),
               ButtonSegment(
                 value: ThemeMode.dark,
                 icon: Icon(Icons.dark_mode),
-                label: Text('Scuro'),
+                label: Text('Dark'),
               ),
             ],
             selected: {themeMode},
@@ -54,7 +54,7 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text(
-              'Esci / Reset Token',
+              'Logout / Reset Token',
               style: TextStyle(color: Colors.red),
             ),
             onTap: () {

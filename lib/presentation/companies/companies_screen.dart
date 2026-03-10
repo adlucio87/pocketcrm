@@ -16,7 +16,7 @@ class CompaniesScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Aziende'),
+        title: const Text('Companies'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -36,8 +36,8 @@ class CompaniesScreen extends ConsumerWidget {
                   height: MediaQuery.of(context).size.height * 0.7,
                   child: const EmptyStateWidget(
                     icon: Icons.business,
-                    title: 'Nessuna azienda',
-                    message: 'Non ci sono aziende nel database.',
+                    title: 'No companies',
+                    message: 'There are no companies in the database.',
                   ),
                 ),
               ),
@@ -112,7 +112,7 @@ class CompaniesScreen extends ConsumerWidget {
           );
         },
         loading: () => const ListSkeleton(),
-        error: (err, stack) => Center(child: Text('Errore: $err')),
+        error: (err, stack) => Center(child: Text('Error: $err')),
       ),
     );
   }

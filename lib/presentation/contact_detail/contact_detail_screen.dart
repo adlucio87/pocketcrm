@@ -29,12 +29,12 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dettaglio Contatto'),
+        title: const Text('Contact Details'),
         actions: [
           detailAsync.whenOrNull(
             data: (contact) => IconButton(
               icon: const Icon(Icons.edit),
-              tooltip: 'Modifica contatto',
+              tooltip: 'Edit contact',
               onPressed: () {
                 showModalBottomSheet(
                   context: context,
@@ -56,13 +56,13 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
             );
           },
           icon: const Icon(Icons.add),
-          label: const Text('Nuova Nota'),
+          label: const Text('New Note'),
         ),
       ),
       body: detailAsync.when(
         data: (contact) => _buildDetail(context, contact),
         loading: () => const DetailSkeleton(),
-        error: (err, stack) => Center(child: Text('Errore: $err')),
+        error: (err, stack) => Center(child: Text('Error: $err')),
       ),
     );
   }
@@ -103,7 +103,7 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
                 ListTile(
                   leading: const Icon(Icons.email),
                   title: Text(
-                    contact.email ?? 'Nessuna email',
+                    contact.email ?? 'No email',
                     style: TextStyle(
                       color: contact.email != null ? Colors.blue : null,
                       decoration: contact.email != null ? TextDecoration.underline : null,
@@ -117,7 +117,7 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
                           } else {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Impossibile aprire il client email')),
+                                const SnackBar(content: Text('Unable to open email client')),
                               );
                             }
                           }
@@ -127,7 +127,7 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
                 ListTile(
                   leading: const Icon(Icons.phone),
                   title: Text(
-                    contact.phone ?? 'Nessun telefono',
+                    contact.phone ?? 'No phone',
                     style: TextStyle(
                       color: contact.phone != null ? Colors.blue : null,
                       decoration: contact.phone != null ? TextDecoration.underline : null,
@@ -138,7 +138,7 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
                           if (kIsWeb || (!Platform.isIOS && !Platform.isAndroid)) {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Le chiamate sono supportate solo su dispositivi mobili')),
+                                const SnackBar(content: Text('Calls are only supported on mobile devices')),
                               );
                             }
                             return;
@@ -149,7 +149,7 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
                           } else {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Impossibile avviare la chiamata')),
+                                const SnackBar(content: Text('Unable to start the call')),
                               );
                             }
                           }
@@ -174,11 +174,11 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
               }
             },
             icon: const Icon(Icons.save_alt),
-            label: const Text('Salva in Rubrica'),
+            label: const Text('Save to Contacts'),
           ),
           const SizedBox(height: 24),
           const Text(
-            'Note relative',
+            'Related Notes',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(height: 8),
@@ -203,7 +203,7 @@ class _NotesList extends ConsumerWidget {
           return const Center(
             child: Padding(
               padding: EdgeInsets.all(16.0),
-              child: Text('Nessuna nota presente'),
+              child: Text('No notes present'),
             ),
           );
         }
@@ -215,7 +215,7 @@ class _NotesList extends ConsumerWidget {
         );
       },
       loading: () => const ListSkeleton(shrinkWrap: true),
-      error: (err, stack) => Center(child: Text('Errore nel caricamento delle note: $err')),
+      error: (err, stack) => Center(child: Text('Error loading notes: $err')),
     );
   }
 }
@@ -301,13 +301,13 @@ class _NoteCard extends StatelessWidget {
                     child: Text(
                       note.createdAt != null
                           ? note.createdAt!.toLocal().toString().split('.')[0]
-                          : 'Nota',
+                          : 'Note',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.edit, size: 20),
-                    tooltip: 'Modifica nota',
+                    tooltip: 'Edit note',
                     onPressed: () {
                       Navigator.of(ctx).pop();
                       showModalBottomSheet(
@@ -375,11 +375,11 @@ class _AddNoteSheetState extends ConsumerState<_AddNoteSheet> {
           );
       if (mounted) {
         Navigator.of(context).pop();
-        SnackbarHelper.showSuccess(context, 'Nota aggiunta con successo');
+        SnackbarHelper.showSuccess(context, 'Note added successfully');
       }
     } catch (e) {
       if (mounted) {
-        SnackbarHelper.showError(context, 'Errore: $e');
+        SnackbarHelper.showError(context, 'Error: $e');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -400,7 +400,7 @@ class _AddNoteSheetState extends ConsumerState<_AddNoteSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Nuova Nota', style: Theme.of(context).textTheme.headlineSmall),
+            Text('New Note', style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 24),
             TextField(
               controller: _bodyController,
@@ -409,7 +409,7 @@ class _AddNoteSheetState extends ConsumerState<_AddNoteSheet> {
               minLines: 3,
               autofocus: true,
               decoration: const InputDecoration(
-                labelText: 'Testo della nota',
+                labelText: 'Note text',
                 alignLabelWithHint: true,
                 border: OutlineInputBorder(),
               ),
@@ -419,7 +419,7 @@ class _AddNoteSheetState extends ConsumerState<_AddNoteSheet> {
               onPressed: _isLoading ? null : _save,
               child: _isLoading
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('Salva Nota'),
+                  : const Text('Save Note'),
             ),
             const SizedBox(height: 32),
           ],

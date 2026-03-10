@@ -24,7 +24,7 @@ class _CompanyDetailScreenState extends ConsumerState<CompanyDetailScreen> {
     final detailAsync = ref.watch(companyDetailProvider(widget.id));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Dettaglio Azienda')),
+      appBar: AppBar(title: const Text('Company Details')),
       floatingActionButton: detailAsync.whenOrNull(
         data: (company) => FloatingActionButton.extended(
           onPressed: () {
@@ -35,13 +35,13 @@ class _CompanyDetailScreenState extends ConsumerState<CompanyDetailScreen> {
             );
           },
           icon: const Icon(Icons.add),
-          label: const Text('Nuova Nota'),
+          label: const Text('New Note'),
         ),
       ),
       body: detailAsync.when(
         data: (company) => _buildDetail(context, company),
         loading: () => const DetailSkeleton(),
-        error: (err, stack) => Center(child: Text('Errore: $err')),
+        error: (err, stack) => Center(child: Text('Error: $err')),
       ),
     );
   }
@@ -94,18 +94,18 @@ class _CompanyDetailScreenState extends ConsumerState<CompanyDetailScreen> {
                   ListTile(
                     leading: const Icon(Icons.category),
                     title: Text(company.industry!),
-                    subtitle: const Text('Settore'),
+                    subtitle: const Text('Industry'),
                   ),
                 if (company.employeesCount != null)
                   ListTile(
                     leading: const Icon(Icons.people),
                     title: Text('${company.employeesCount}'),
-                    subtitle: const Text('Dipendenti'),
+                    subtitle: const Text('Employees'),
                   ),
                 if (company.industry == null && company.employeesCount == null)
                   const ListTile(
                     leading: Icon(Icons.info_outline),
-                    title: Text('Nessun dettaglio aggiuntivo'),
+                    title: Text('No additional details'),
                   ),
               ],
             ),
@@ -117,7 +117,7 @@ class _CompanyDetailScreenState extends ConsumerState<CompanyDetailScreen> {
           ),
           const SizedBox(height: 24),
           const Text(
-            'Note relative',
+            'Related Notes',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(height: 8),
@@ -142,7 +142,7 @@ class _CompanyNotesList extends ConsumerWidget {
           return const Center(
             child: Padding(
               padding: EdgeInsets.all(16.0),
-              child: Text('Nessuna nota presente'),
+              child: Text('No notes present'),
             ),
           );
         }
@@ -154,7 +154,7 @@ class _CompanyNotesList extends ConsumerWidget {
         );
       },
       loading: () => const ListSkeleton(shrinkWrap: true),
-      error: (err, stack) => Center(child: Text('Errore nel caricamento delle note: $err')),
+      error: (err, stack) => Center(child: Text('Error loading notes: $err')),
     );
   }
 }
@@ -238,13 +238,13 @@ class _NoteCard extends StatelessWidget {
                     child: Text(
                       note.createdAt != null
                           ? note.createdAt!.toLocal().toString().split('.')[0]
-                          : 'Nota',
+                          : 'Note',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.edit, size: 20),
-                    tooltip: 'Modifica nota',
+                    tooltip: 'Edit note',
                     onPressed: () {
                       Navigator.of(ctx).pop();
                       showModalBottomSheet(
@@ -311,11 +311,11 @@ class _AddCompanyNoteSheetState extends ConsumerState<_AddCompanyNoteSheet> {
           );
       if (mounted) {
         Navigator.of(context).pop();
-        SnackbarHelper.showSuccess(context, 'Nota aggiunta con successo');
+        SnackbarHelper.showSuccess(context, 'Note added successfully');
       }
     } catch (e) {
       if (mounted) {
-        SnackbarHelper.showError(context, 'Errore: $e');
+        SnackbarHelper.showError(context, 'Error: $e');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -336,7 +336,7 @@ class _AddCompanyNoteSheetState extends ConsumerState<_AddCompanyNoteSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Nuova Nota', style: Theme.of(context).textTheme.headlineSmall),
+            Text('New Note', style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 24),
             TextField(
               controller: _bodyController,
@@ -345,7 +345,7 @@ class _AddCompanyNoteSheetState extends ConsumerState<_AddCompanyNoteSheet> {
               minLines: 3,
               autofocus: true,
               decoration: const InputDecoration(
-                labelText: 'Testo della nota',
+                labelText: 'Note text',
                 alignLabelWithHint: true,
                 border: OutlineInputBorder(),
               ),
@@ -355,7 +355,7 @@ class _AddCompanyNoteSheetState extends ConsumerState<_AddCompanyNoteSheet> {
               onPressed: _isLoading ? null : _save,
               child: _isLoading
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('Salva Nota'),
+                  : const Text('Save Note'),
             ),
             const SizedBox(height: 32),
           ],

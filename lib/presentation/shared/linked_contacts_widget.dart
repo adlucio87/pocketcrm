@@ -37,7 +37,7 @@ class LinkedContactsWidget extends ConsumerWidget {
           if (isCompact) return const SizedBox.shrink();
           return const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Text('Nessun contatto collegato'),
+            child: Text('No linked contacts'),
           );
         }
 
@@ -83,7 +83,7 @@ class LinkedContactsWidget extends ConsumerWidget {
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Text(
-                'Contatti Collegati',
+                'Linked Contacts',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -124,7 +124,7 @@ class LinkedContactsWidget extends ConsumerWidget {
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   subtitle: Text(
-                    contact.email ?? contact.phone ?? 'Nessun dettaglio',
+                    contact.email ?? contact.phone ?? 'No details',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -148,7 +148,7 @@ class LinkedContactsWidget extends ConsumerWidget {
           ? const SizedBox.shrink()
           : Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Text('Errore: $err', style: const TextStyle(color: Colors.red)),
+              child: Text('Error: $err', style: const TextStyle(color: Colors.red)),
             ),
     );
   }

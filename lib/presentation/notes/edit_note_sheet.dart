@@ -81,7 +81,7 @@ class _EditNoteSheetState extends ConsumerState<EditNoteSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Modifica Nota',
+              'Edit Note',
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 24),
@@ -92,7 +92,7 @@ class _EditNoteSheetState extends ConsumerState<EditNoteSheet> {
               minLines: 4,
               autofocus: true,
               decoration: const InputDecoration(
-                labelText: 'Testo della nota',
+                labelText: 'Note text',
                 alignLabelWithHint: true,
                 border: OutlineInputBorder(),
               ),
@@ -106,7 +106,7 @@ class _EditNoteSheetState extends ConsumerState<EditNoteSheet> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Salva Modifiche'),
+                  : const Text('Save Changes'),
             ),
             const SizedBox(height: 32),
           ],
@@ -136,11 +136,11 @@ class _EditNoteSheetState extends ConsumerState<EditNoteSheet> {
 
       if (mounted) {
         Navigator.of(context).pop();
-        SnackbarHelper.showSuccess(context, 'Nota salvata con successo');
+        SnackbarHelper.showSuccess(context, 'Note saved successfully');
       }
     } catch (e) {
       if (mounted) {
-        SnackbarHelper.showError(context, 'Errore: $e');
+        SnackbarHelper.showError(context, 'Error: $e');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
