@@ -57,6 +57,23 @@ final crmRepositoryProvider = FutureProvider<CRMRepository>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CrmRepositoryRef = FutureProviderRef<CRMRepository>;
+String _$currentUserNameHash() => r'b26064b448fd5a1c46309b0de276c3936ffe639d';
+
+/// See also [currentUserName].
+@ProviderFor(currentUserName)
+final currentUserNameProvider = FutureProvider<String>.internal(
+  currentUserName,
+  name: r'currentUserNameProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$currentUserNameHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CurrentUserNameRef = FutureProviderRef<String>;
 String _$contactsHash() => r'3a4c81929eb68dc29066a08bab338a6f21b15c0e';
 
 /// See also [Contacts].

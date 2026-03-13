@@ -577,6 +577,170 @@ class TwentyConnector implements CRMRepository {
   }
 
   @override
+  Future<List<Task>> getOverdueTasks() async {
+    final now = DateTime.now();
+    final startOfToday = DateTime(now.year, now.month, now.day);
+
+    final String query = '''
+      query GetOverdueTasks {
+        tasks(
+          filter: {
+            and: [
+              { dueAt: { lt: "${startOfToday.toIso8601String()}" } }
+              { status: { neq: DONE } }
+            ]
+          }
+          orderBy: { dueAt: AscNullsLast }
+        ) {
+          edges { node { id title status dueAt } }
+        }
+      }
+    ''';
+
+    final options = QueryOptions(
+      document: gql(query),
+      fetchPolicy: FetchPolicy.networkOnly,
+    );
+
+    final result = await client.query(options);
+
+    if (result.hasException) {
+      throw Exception(result.exception.toString());
+    }
+
+    final edges = result.data?['tasks']?['edges'] as List?;
+    if (edges == null) return [];
+
+    return edges
+        .map((e) => Task.fromTwenty(e['node'] as Map<String, dynamic>))
+        .toList();
+  }
+
+  @override
+  Future<List<Task>> getTodayTasks() async {
+    final now = DateTime.now();
+    final startOfToday = DateTime(now.year, now.month, now.day);
+    final endOfToday = startOfToday.add(const Duration(days: 1));
+
+    final String query = '''
+      query GetTodayTasks {
+        tasks(
+          filter: {
+            and: [
+              { dueAt: { gte: "${startOfToday.toIso8601String()}" } }
+              { dueAt: { lt: "${endOfToday.toIso8601String()}" } }
+              { status: { neq: DONE } }
+            ]
+          }
+          orderBy: { dueAt: AscNullsLast }
+        ) {
+          edges { node { id title status dueAt } }
+        }
+      }
+    ''';
+
+    final options = QueryOptions(
+      document: gql(query),
+      fetchPolicy: FetchPolicy.networkOnly,
+    );
+
+    final result = await client.query(options);
+
+    if (result.hasException) {
+      throw Exception(result.exception.toString());
+    }
+
+    final edges = result.data?['tasks']?['edges'] as List?;
+    if (edges == null) return [];
+
+    return edges
+        .map((e) => Task.fromTwenty(e['node'] as Map<String, dynamic>))
+        .toList();
+  }
+
+  @override
+  Future<List<Task>> getTomorrowTasks() async {
+    final now = DateTime.now();
+    final startOfTomorrow = DateTime(now.year, now.month, now.day).add(const Duration(days: 1));
+    final endOfTomorrow = startOfTomorrow.add(const Duration(days: 1));
+
+    final String query = '''
+      query GetTomorrowTasks {
+        tasks(
+          filter: {
+            and: [
+              { dueAt: { gte: "${startOfTomorrow.toIso8601String()}" } }
+              { dueAt: { lt: "${endOfTomorrow.toIso8601String()}" } }
+              { status: { neq: DONE } }
+            ]
+          }
+          orderBy: { dueAt: AscNullsLast }
+        ) {
+          edges { node { id title status dueAt } }
+        }
+      }
+    ''';
+
+    final options = QueryOptions(
+      document: gql(query),
+      fetchPolicy: FetchPolicy.networkOnly,
+    );
+
+    final result = await client.query(options);
+
+    if (result.hasException) {
+      throw Exception(result.exception.toString());
+    }
+
+    final edges = result.data?['tasks']?['edges'] as List?;
+    if (edges == null) return [];
+
+    return edges
+        .map((e) => Task.fromTwenty(e['node'] as Map<String, dynamic>))
+        .toList();
+  }
+
+  @override
+  Future<List<Contact>> getRecentContacts({int limit = 5}) async {
+    const String query = r'''
+      query GetRecentContacts($first: Int!) {
+        people(
+          first: $first
+          orderBy: { updatedAt: DescNullsLast }
+        ) {
+          edges { node {
+            id
+            name { firstName lastName }
+            avatarUrl
+            emails { primaryEmail }
+            company { name }
+            updatedAt
+          } }
+        }
+      }
+    ''';
+
+    final options = QueryOptions(
+      document: gql(query),
+      variables: {'first': limit},
+      fetchPolicy: FetchPolicy.networkOnly,
+    );
+
+    final result = await client.query(options);
+
+    if (result.hasException) {
+      throw Exception(result.exception.toString());
+    }
+
+    final edges = result.data?['people']?['edges'] as List?;
+    if (edges == null) return [];
+
+    return edges
+        .map((e) => Contact.fromTwenty(e['node'] as Map<String, dynamic>))
+        .toList();
+  }
+
+  @override
   Future<List<Task>> getTasks({bool? completed}) async {
     const String query = r'''
       query GetTasks($filter: TaskFilterInput) {

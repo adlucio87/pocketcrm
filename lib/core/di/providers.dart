@@ -300,6 +300,12 @@ class TaskContacts extends _$TaskContacts {
 }
 
 @Riverpod(keepAlive: true)
+Future<String> currentUserName(CurrentUserNameRef ref) async {
+  final repo = await ref.watch(crmRepositoryProvider.future);
+  return repo.getCurrentUserName();
+}
+
+@Riverpod(keepAlive: true)
 class Companies extends _$Companies {
   @override
   FutureOr<List<Company>> build() async {

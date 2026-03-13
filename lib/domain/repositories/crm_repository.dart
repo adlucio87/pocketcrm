@@ -44,6 +44,9 @@ abstract class CRMRepository {
 
   // Tasks
   Future<List<Task>> getTasks({bool? completed});
+  Future<List<Task>> getOverdueTasks();
+  Future<List<Task>> getTodayTasks();
+  Future<List<Task>> getTomorrowTasks();
   Future<Task> createTask({
     required String title,
     String? body,
@@ -57,4 +60,7 @@ abstract class CRMRepository {
     bool clearDueDate = false,
     bool? completed,
   });
+
+  // Today screen queries
+  Future<List<Contact>> getRecentContacts({int limit = 5});
 }

@@ -12,6 +12,7 @@ class Task with _$Task {
     bool? completed,
     DateTime? dueAt,
     String? contactId,
+    String? contactName,
     DateTime? createdAt,
   }) = _Task;
 
@@ -34,12 +35,37 @@ class Task with _$Task {
       }
     }
 
+    String? contactId;
+    String? contactName;
+
+    final taskTargets = json['taskTargets'];
+    if (taskTargets != null && taskTargets['edges'] != null) {
+      final edges = taskTargets['edges'] as List;
+      if (edges.isNotEmpty) {
+        final node = edges.first['node'];
+        if (node != null) {
+          contactId = node['personId'];
+          final person = node['person'];
+          if (person != null && person['name'] != null) {
+            final name = person['name'];
+            final firstName = name['firstName'] ?? '';
+            final lastName = name['lastName'] ?? '';
+            if (firstName.isNotEmpty || lastName.isNotEmpty) {
+              contactName = '$firstName $lastName'.trim();
+            }
+          }
+        }
+      }
+    }
+
     return Task(
       id: json['id'],
       title: json['title'] ?? '',
       body: bodyText,
       completed: json['status'] == 'DONE',
       dueAt: json['dueAt'] != null ? DateTime.parse(json['dueAt']) : null,
+      contactId: contactId,
+      contactName: contactName,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : null,

@@ -74,6 +74,8 @@ GoRouter appRouter(AppRouterRef ref) {
         print("Router redirect: -> /home");
         return "/home";
       }
+        return '/home';
+      }
 
       print('Router redirect: allow null');
       return null;
