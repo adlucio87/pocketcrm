@@ -719,7 +719,7 @@ class TwentyConnector implements CRMRepository {
             name { firstName lastName }
             avatarUrl
             emails { primaryEmail }
-            company { name { text } }
+            company { name }
             updatedAt
           } }
         }

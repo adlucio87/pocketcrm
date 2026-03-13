@@ -7,6 +7,7 @@ import 'package:pocketcrm/core/theme/app_theme.dart';
 import 'package:pocketcrm/core/theme/theme_provider.dart';
 import 'package:pocketcrm/core/di/providers.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +21,8 @@ void main() async {
   if (kDebugMode) {
     print('Hive box keys at startup: ${box.keys.toList()}');
   }
+
+  await initializeDateFormatting('it_IT', null);
 
   runApp(
     ProviderScope(
