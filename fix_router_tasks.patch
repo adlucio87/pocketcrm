@@ -1,0 +1,13 @@
+--- lib/core/router/router.dart
++++ lib/core/router/router.dart
+@@ -128,5 +128,9 @@
+           GoRoute(
+             path: '/tasks',
+             builder: (context, state) => const TasksScreen(),
++            routes: [
++              GoRoute(
++                path: ':id',
++                builder: (context, state) => const TasksScreen(),
++              ),
++            ],
+           ),

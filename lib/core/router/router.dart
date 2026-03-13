@@ -130,6 +130,12 @@ GoRouter appRouter(AppRouterRef ref) {
           GoRoute(
             path: '/tasks',
             builder: (context, state) => const TasksScreen(),
+            routes: [
+              GoRoute(
+                path: ":id",
+                builder: (context, state) => const TasksScreen(),
+              ),
+            ],
           ),
           GoRoute(
             path: '/settings',
