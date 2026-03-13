@@ -9,6 +9,7 @@ import 'package:pocketcrm/domain/models/note.dart';
 import 'package:pocketcrm/domain/models/task.dart';
 import 'package:pocketcrm/domain/repositories/crm_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:pocketcrm/core/notifications/notification_service.dart';
 
 part 'providers.g.dart';
 
@@ -355,6 +356,8 @@ class Tasks extends _$Tasks {
       ref.invalidateSelf();
     }
     
+    await NotificationService().scheduleTaskReminder(newTask);
+
     return newTask;
   }
 
@@ -386,6 +389,12 @@ class Tasks extends _$Tasks {
           state = AsyncValue.data(newList);
         }
       }
+    }
+
+    if (updatedTask.completed == true) {
+      await NotificationService().cancelTaskReminder(updatedTask.id);
+    } else {
+      await NotificationService().scheduleTaskReminder(updatedTask);
     }
 
     return updatedTask;

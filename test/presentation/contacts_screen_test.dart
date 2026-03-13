@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:pocketcrm/core/di/providers.dart';
 import 'package:pocketcrm/core/utils/storage_service.dart';
@@ -26,6 +27,7 @@ void main() {
     late MockStorageService mockStorageService;
 
     setUp(() {
+      SharedPreferences.setMockInitialValues({});
       mockCRMRepository = MockCRMRepository();
       mockStorageService = MockStorageService();
     });
@@ -86,13 +88,13 @@ void main() {
       await tester.pumpAndSettle();
 
       // 6. Fill the form
-      await tester.enterText(find.widgetWithText(TextFormField, 'Nome'), 'Jane');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Cognome'), 'Smith');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Email'), 'jane@example.com');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Telefono (Mobile)'), '1234567890');
+      await tester.enterText(find.widgetWithText(TextFormField, 'First Name').first, 'Jane');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Last Name').first, 'Smith');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Email').first, 'jane@example.com');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Phone (Mobile)').first, '1234567890');
 
       // 7. Tap Salva Contatto
-      await tester.tap(find.text('Salva Contatto'));
+      await tester.tap(find.text('Save Contact'));
       await tester.pumpAndSettle(); // Wait for the provider state update and modal closing
 
       // 8. Verify UI now shows both contacts (the state refresh inserts it immediately)

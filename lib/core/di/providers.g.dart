@@ -937,7 +937,7 @@ final taskFilterProvider =
     );
 
 typedef _$TaskFilter = AutoDisposeNotifier<bool>;
-String _$tasksHash() => r'78f653e219bfebf1427edb083ae00fb8bad7d8a4';
+String _$tasksHash() => r'909f7f4a4560ab3859093c23d5a1477b827e8359';
 
 /// See also [Tasks].
 @ProviderFor(Tasks)

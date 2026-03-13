@@ -47,5 +47,10 @@
 	<true/>
 	<key>NSContactsUsageDescription</key>
 	<string>This app requires contacts access to import and export contacts.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

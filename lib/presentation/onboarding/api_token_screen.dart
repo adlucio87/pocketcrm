@@ -106,7 +106,7 @@ class _ApiTokenScreenState extends ConsumerState<ApiTokenScreen> {
       await ref.read(authStateProvider.notifier).login(token);
       ref.invalidate(crmRepositoryProvider);
 
-      if (mounted) context.go('/contacts');
+      if (mounted) context.go('/onboarding/notifications');
     } catch (e) {
       if (mounted) {
         setState(() => _error = 'Error: $e');

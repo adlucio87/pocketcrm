@@ -1,0 +1,18 @@
+--- lib/core/router/router.dart
++++ lib/core/router/router.dart
+@@ -70,14 +70,9 @@
+         return '/onboarding';
+       }
+
+-<<<<<<< HEAD
+       if (hasToken && isOnboarding && state.matchedLocation != '/onboarding/notifications') {
+-        print('Router redirect: -> /contacts');
+-        return '/contacts';
+-=======
+-      if (hasToken && isOnboarding) {
+         print('Router redirect: -> /home');
+         return '/home';
+->>>>>>> origin/main
+       }
+
+       print('Router redirect: allow null');

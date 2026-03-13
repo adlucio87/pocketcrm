@@ -8,9 +8,13 @@ import 'package:pocketcrm/core/theme/theme_provider.dart';
 import 'package:pocketcrm/core/di/providers.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import "package:pocketcrm/core/notifications/notification_service.dart";
+import "package:go_router/go_router.dart";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await NotificationService().initialize();
 
   // Inizializza Hive nella directory dei dati applicazione (persistente)
   final appDocDir = await getApplicationSupportDirectory();
@@ -38,6 +42,17 @@ class PocketCRMApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (initialNotificationRoute != null) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (navigatorKey.currentContext != null) {
+            navigatorKey.currentContext!.go(initialNotificationRoute!);
+            clearInitialNotificationRoute();
+          }
+        });
+      }
+    });
 
     return MaterialApp.router(
       title: 'TwentyMobile',

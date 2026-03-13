@@ -10,6 +10,7 @@ import 'package:pocketcrm/presentation/shared/due_date_picker.dart';
 import 'package:pocketcrm/presentation/shared/skeleton_loading.dart';
 import 'package:pocketcrm/presentation/shared/snackbar_helper.dart';
 import 'package:pocketcrm/presentation/shared/empty_state_widget.dart';
+import 'package:pocketcrm/core/notifications/notification_service.dart';
 
 class TasksScreen extends ConsumerStatefulWidget {
   const TasksScreen({super.key});
@@ -22,6 +23,17 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(tasksProvider, (previous, next) {
+      next.whenData((tasks) {
+        NotificationService().syncTaskNotifications(tasks);
+
+        int overdueCount = tasks.where((t) => t.dueAt != null && t.dueAt!.isBefore(DateTime.now()) && t.completed != true).length;
+        if (overdueCount > 0) {
+          NotificationService().scheduleOvernightSummary(overdueCount);
+        }
+      });
+    });
+
     final tasksAsync = ref.watch(tasksProvider);
     final isShowingCompleted = ref.watch(taskFilterProvider);
 

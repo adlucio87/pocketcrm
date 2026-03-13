@@ -70,11 +70,11 @@ GoRouter appRouter(AppRouterRef ref) {
         return '/onboarding';
       }
 
-      if (hasToken &&
-          isOnboarding &&
-          state.matchedLocation != "/onboarding/notifications") {
+      if (hasToken && isOnboarding && state.matchedLocation != "/onboarding/notifications") {
         print("Router redirect: -> /home");
         return "/home";
+      }
+        return '/home';
       }
 
       print('Router redirect: allow null');
