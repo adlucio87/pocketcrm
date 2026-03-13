@@ -5,7 +5,6 @@ import '../../domain/models/task.dart';
 import '../router/router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter/foundation.dart';
 
 String? _initialRoute;
 String? get initialNotificationRoute => _initialRoute;
@@ -30,14 +29,9 @@ class NotificationService {
   Future<void> initialize() async {
     tz_data.initializeTimeZones();
 
-    try {
-      // Imposta timezone locale del device
-      final String timezoneName = await _getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(timezoneName));
-    } catch (e) {
-      if (kDebugMode) print('Errore timezone: $e, fallback a UTC');
-      tz.setLocalLocation(tz.getLocation('UTC'));
-    }
+    // Imposta timezone locale del device
+    final String timezoneName = await _getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(timezoneName));
 
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -269,7 +263,7 @@ class NotificationService {
       // Su iOS/macOS usa il timezone del device
       return DateTime.now().timeZoneName;
     } catch (_) {
-      return 'UTC'; // fallback sicuro
+      return 'Europe/Rome'; // fallback
     }
   }
 }
