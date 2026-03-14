@@ -9,6 +9,8 @@ import 'package:pocketcrm/presentation/home/today_provider.dart';
 import 'package:pocketcrm/presentation/home/widgets/task_today_card.dart';
 import 'package:pocketcrm/presentation/home/widgets/recent_contacts_row.dart';
 import 'package:pocketcrm/presentation/home/widgets/section_header.dart';
+import 'package:pocketcrm/core/utils/platform_utils.dart';
+import 'package:pocketcrm/presentation/scan/scan_card_screen.dart';
 
 class TodayScreen extends ConsumerWidget {
   const TodayScreen({super.key});
@@ -30,6 +32,22 @@ class TodayScreen extends ConsumerWidget {
         animationCurve: Curves.elasticInOut,
         isOpenOnStart: false,
         children: [
+          SpeedDialChild(
+            child: const Icon(Icons.document_scanner),
+            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+            foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+            label: 'Scan biglietto',
+            onTap: () {
+              if (!PlatformUtils.supportsScan) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('📱 Disponibile solo su iPhone e Android'),
+                ));
+                return;
+              }
+              Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const ScanCardScreen()));
+            },
+          ),
           SpeedDialChild(
             child: const Icon(Icons.person_add),
             backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
