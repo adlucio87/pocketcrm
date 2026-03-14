@@ -187,17 +187,19 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => _AddContactSheet(),
+      builder: (context) => const AddContactSheet(),
     );
   }
 }
 
-class _AddContactSheet extends ConsumerStatefulWidget {
+class AddContactSheet extends ConsumerStatefulWidget {
+  const AddContactSheet({super.key});
+
   @override
-  ConsumerState<_AddContactSheet> createState() => _AddContactSheetState();
+  ConsumerState<AddContactSheet> createState() => AddContactSheetState();
 }
 
-class _AddContactSheetState extends ConsumerState<_AddContactSheet> {
+class AddContactSheetState extends ConsumerState<AddContactSheet> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
