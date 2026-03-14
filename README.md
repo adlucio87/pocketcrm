@@ -90,5 +90,10 @@ Per avviare il progetto localmente:
    flutter run
    ```
 
+5. Compila l'app per il rilascio:
+   ```bash
+   flutter build appbundle --release
+   ```
+
 ## 📄 Licenza
 PocketCRM è un progetto open-source distribuito sotto licenza **AGPL-3.0**.
