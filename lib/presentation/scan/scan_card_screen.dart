@@ -144,8 +144,16 @@ class _ScanCardScreenState extends ConsumerState<ScanCardScreen> {
       sourcePath: image.path,
       aspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
       uiSettings: [
-        AndroidUiSettings(toolbarTitle: 'Ritaglia biglietto'),
-        IOSUiSettings(title: 'Ritaglia biglietto'),
+        AndroidUiSettings(
+          toolbarTitle: 'Ritaglia biglietto',
+          toolbarColor: Colors.black,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.ratio16x9,
+          hideBottomControls: false,
+        ),
+        IOSUiSettings(
+          title: 'Ritaglia biglietto',
+        ),
       ],
     );
 
