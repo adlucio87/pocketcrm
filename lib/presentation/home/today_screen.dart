@@ -11,6 +11,8 @@ import 'package:pocketcrm/presentation/home/widgets/recent_contacts_row.dart';
 import 'package:pocketcrm/presentation/home/widgets/section_header.dart';
 import 'package:pocketcrm/core/utils/platform_utils.dart';
 import 'package:pocketcrm/presentation/scan/scan_card_screen.dart';
+import 'package:pocketcrm/presentation/contacts/contacts_screen.dart';
+import 'package:pocketcrm/presentation/tasks/tasks_screen.dart';
 
 class TodayScreen extends ConsumerWidget {
   const TodayScreen({super.key});
@@ -53,14 +55,28 @@ class TodayScreen extends ConsumerWidget {
             backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
             foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
             label: 'Nuovo contatto',
-            onTap: () => context.push('/contacts/create'),
+            onTap: () => showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              builder: (context) => const AddContactSheet(),
+            ),
           ),
           SpeedDialChild(
             child: const Icon(Icons.add_task),
             backgroundColor: Theme.of(context).colorScheme.primaryContainer,
             foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
             label: 'Nuovo task rapido',
-            onTap: () => context.push('/tasks/create'),
+            onTap: () => showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              builder: (context) => const AddTaskSheet(),
+            ),
           ),
         ],
       ),
@@ -151,7 +167,14 @@ class TodayScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 24),
                         ElevatedButton(
-                          onPressed: () => context.push('/tasks/create'),
+                          onPressed: () => showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                            ),
+                            builder: (context) => const AddTaskSheet(),
+                          ),
                           child: const Text("Aggiungi task"),
                         ),
                         if (hasRecent) const Spacer(flex: 2),

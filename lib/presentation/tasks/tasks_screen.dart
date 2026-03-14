@@ -225,17 +225,19 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => _AddTaskSheet(),
+      builder: (context) => const AddTaskSheet(),
     );
   }
 }
 
-class _AddTaskSheet extends ConsumerStatefulWidget {
+class AddTaskSheet extends ConsumerStatefulWidget {
+  const AddTaskSheet({super.key});
+
   @override
-  ConsumerState<_AddTaskSheet> createState() => _AddTaskSheetState();
+  ConsumerState<AddTaskSheet> createState() => AddTaskSheetState();
 }
 
-class _AddTaskSheetState extends ConsumerState<_AddTaskSheet> {
+class AddTaskSheetState extends ConsumerState<AddTaskSheet> {
   final _titleController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   String? _selectedContactId;
