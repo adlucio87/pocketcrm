@@ -23,31 +23,34 @@ void main() {
     });
 
     test('writes non-sensitive keys to Hive', () async {
-      await storageService.write(key: 'instance_url', value: 'https://example.com');
+      await storageService.write(key: 'user_name', value: 'John Doe');
 
-      expect(box.get('instance_url'), 'https://example.com');
+      expect(box.get('user_name'), 'John Doe');
     });
 
     test('does NOT write sensitive keys to Hive', () async {
       await storageService.write(key: 'api_token', value: 'secret123');
+      await storageService.write(
+        key: 'instance_url',
+        value: 'https://example.com',
+      );
 
-      // _sensitiveKeys è vuoto quindi ora va anche in Hive
-      // (il comportamento di default è non bloccare)
-      expect(box.get('api_token'), 'secret123');
-    });
-
-    test('removes key from Hive when value is null', () async {
-      await box.put('instance_url', 'https://example.com');
-      await storageService.write(key: 'instance_url', value: null);
-
+      expect(box.get('api_token'), null);
       expect(box.get('instance_url'), null);
     });
 
-    test('reads from Hive fallback when not in cache or secure storage', () async {
-      await box.put('instance_url', 'https://example.com');
+    test('removes key from Hive when value is null', () async {
+      await box.put('user_name', 'John Doe');
+      await storageService.write(key: 'user_name', value: null);
 
-      final result = await storageService.read(key: 'instance_url');
-      expect(result, 'https://example.com');
+      expect(box.get('user_name'), null);
+    });
+
+    test('reads from Hive fallback when not in cache or secure storage', () async {
+      await box.put('user_name', 'John Doe');
+
+      final result = await storageService.read(key: 'user_name');
+      expect(result, 'John Doe');
     });
   });
 }

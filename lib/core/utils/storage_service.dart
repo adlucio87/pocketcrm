@@ -7,7 +7,7 @@ class StorageService {
   final Box<String> _box;
   final Map<String, String> _cache = {};
 
-  static const _sensitiveKeys = <String>{};
+  static const _sensitiveKeys = {'api_token', 'instance_url'};
 
   StorageService(this._secureStorage, this._box);
 
