@@ -57,6 +57,7 @@ dependencies:
   google_mlkit_text_recognition: ^0.13.0
   image_picker: ^1.0.0
   image_cropper: ^8.0.0
+  share_plus: ^10.0.0
 
 
 dev_dependencies:

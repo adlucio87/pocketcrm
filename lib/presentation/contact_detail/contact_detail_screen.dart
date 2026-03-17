@@ -17,6 +17,7 @@ import 'package:pocketcrm/presentation/shared/snackbar_helper.dart';
 import 'package:pocketcrm/presentation/shared/swipe_to_delete_wrapper.dart';
 import 'package:pocketcrm/presentation/shared/dialog_helper.dart';
 import 'package:pocketcrm/core/notifications/notification_service.dart';
+import 'package:pocketcrm/domain/services/contact_share_service.dart';
 
 class ContactDetailScreen extends ConsumerStatefulWidget {
   final String id;
@@ -28,6 +29,8 @@ class ContactDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
+  bool _isSharing = false;
+
   @override
   Widget build(BuildContext context) {
     final detailAsync = ref.watch(contactDetailProvider(widget.id));
@@ -36,6 +39,33 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
       appBar: AppBar(
         title: const Text('Contact Details'),
         actions: [
+          if (detailAsync.hasValue)
+            IconButton(
+              icon: _isSharing
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Icon(Platform.isIOS ? Icons.ios_share : Icons.share),
+              tooltip: 'Condividi contatto',
+              onPressed: _isSharing
+                  ? null
+                  : () async {
+                      setState(() => _isSharing = true);
+                      try {
+                        await ContactShareService()
+                            .shareContact(detailAsync.value!);
+                      } catch (e) {
+                        if (context.mounted) {
+                          SnackbarHelper.showError(
+                              context, 'Impossibile condividere il contatto');
+                        }
+                      } finally {
+                        if (mounted) setState(() => _isSharing = false);
+                      }
+                    },
+            ),
           if (detailAsync.hasValue)
             IconButton(
               icon: const Icon(Icons.edit),
