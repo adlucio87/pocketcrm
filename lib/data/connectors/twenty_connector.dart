@@ -325,6 +325,23 @@ class TwentyConnector implements CRMRepository {
   }
 
   @override
+  Future<void> deleteContact(String id) async {
+    const String mutation = r'''
+      mutation DeletePerson($id: UUID!) {
+        deletePerson(id: $id) { id }
+      }
+    ''';
+
+    final MutationOptions options = MutationOptions(
+      document: gql(mutation),
+      variables: {'id': id},
+    );
+
+    final QueryResult result = await client.mutate(options);
+    if (result.hasException) throw Exception(result.exception.toString());
+  }
+
+  @override
   Future<List<Company>> getCompanies({String? search, int page = 1}) async {
     const String query = r'''
       query GetCompanies($filter: CompanyFilterInput, $first: Int) {
@@ -574,6 +591,23 @@ class TwentyConnector implements CRMRepository {
     return Note.fromTwenty(
       result.data?['updateNote'] as Map<String, dynamic>,
     );
+  }
+
+  @override
+  Future<void> deleteNote(String id) async {
+    const String mutation = r'''
+      mutation DeleteNote($id: UUID!) {
+        deleteNote(id: $id) { id }
+      }
+    ''';
+
+    final MutationOptions options = MutationOptions(
+      document: gql(mutation),
+      variables: {'id': id},
+    );
+
+    final QueryResult result = await client.mutate(options);
+    if (result.hasException) throw Exception(result.exception.toString());
   }
 
   @override
@@ -903,5 +937,22 @@ class TwentyConnector implements CRMRepository {
     final data = result.data?['updateTask'];
     
     return Task.fromTwenty(data);
+  }
+
+  @override
+  Future<void> deleteTask(String id) async {
+    const String mutation = r'''
+      mutation DeleteTask($id: UUID!) {
+        deleteTask(id: $id) { id }
+      }
+    ''';
+
+    final MutationOptions options = MutationOptions(
+      document: gql(mutation),
+      variables: {'id': id},
+    );
+
+    final QueryResult result = await client.mutate(options);
+    if (result.hasException) throw Exception(result.exception.toString());
   }
 }

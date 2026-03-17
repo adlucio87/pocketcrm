@@ -10,6 +10,7 @@ import 'package:pocketcrm/presentation/shared/linked_contacts_widget.dart';
 import 'package:pocketcrm/presentation/shared/note_card.dart';
 import 'package:pocketcrm/presentation/shared/skeleton_loading.dart';
 import 'package:pocketcrm/presentation/shared/snackbar_helper.dart';
+import 'package:pocketcrm/presentation/shared/swipe_to_delete_wrapper.dart';
 
 class CompanyDetailScreen extends ConsumerStatefulWidget {
   final String id;

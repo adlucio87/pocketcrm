@@ -11,6 +11,9 @@ import 'package:pocketcrm/presentation/shared/snackbar_helper.dart';
 import 'package:pocketcrm/presentation/shared/empty_state_widget.dart';
 import 'package:pocketcrm/core/notifications/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pocketcrm/presentation/shared/swipe_to_delete_wrapper.dart';
+import 'package:pocketcrm/presentation/shared/dialog_helper.dart';
+import 'package:pocketcrm/presentation/home/today_provider.dart';
 
 class TasksScreen extends ConsumerStatefulWidget {
   const TasksScreen({super.key});
@@ -85,9 +88,26 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
               separatorBuilder: (context, index) => const Divider(height: 1),
               itemBuilder: (context, index) {
                 final task = tasks[index];
-                return ListTile(
-                  leading: Checkbox(
-                    value: task.completed,
+                return SwipeToDeleteWrapper(
+                  itemKey: ValueKey('task_${task.id}'),
+                  confirmTitle: 'Elimina task',
+                  confirmMessage: 'Vuoi eliminare \'${task.title}\'?',
+                  onDelete: () async {
+                    try {
+                      await ref.read(tasksProvider.notifier).deleteTask(task.id);
+                      ref.invalidate(todayNotifierProvider);
+                      if (context.mounted) {
+                        SnackbarHelper.showSuccess(context, 'Task eliminato');
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        SnackbarHelper.showError(context, 'Errore durante l\'eliminazione');
+                      }
+                    }
+                  },
+                  child: ListTile(
+                    leading: Checkbox(
+                      value: task.completed,
                     onChanged: (val) {
                       if (val != null) {
                         ref
@@ -191,16 +211,17 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                       ),
                     ],
                   ),
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                      ),
-                      builder: (context) => _EditTaskSheet(task: task),
-                    );
-                  },
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                        ),
+                        builder: (context) => _EditTaskSheet(task: task),
+                      );
+                    },
+                  ),
                 );
               },
             ),
@@ -517,9 +538,39 @@ class _EditTaskSheetState extends ConsumerState<_EditTaskSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Edit Task',
-                style: Theme.of(context).textTheme.headlineSmall,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Edit Task',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () async {
+                      final confirm = await DialogHelper.showDeleteConfirmDialog(
+                        context: context,
+                        title: 'Elimina task',
+                        message: 'Vuoi eliminare \'${widget.task.title}\'?',
+                      );
+
+                      if (confirm && context.mounted) {
+                        try {
+                          await ref.read(tasksProvider.notifier).deleteTask(widget.task.id);
+                          ref.invalidate(todayNotifierProvider);
+                          if (context.mounted) {
+                            Navigator.of(context).pop();
+                            SnackbarHelper.showSuccess(context, 'Task eliminato');
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            SnackbarHelper.showError(context, 'Errore durante l\'eliminazione');
+                          }
+                        }
+                      }
+                    },
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
               TextFormField(

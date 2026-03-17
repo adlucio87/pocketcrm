@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pocketcrm/core/utils/storage_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('StorageService', () {
     late StorageService storageService;
     late Box<String> box;
@@ -13,6 +14,7 @@ void main() {
       Hive.init('/tmp/hive_test');
       box = await Hive.openBox<String>('test_storage');
 
+      FlutterSecureStorage.setMockInitialValues({});
       const secureStorage = FlutterSecureStorage();
       storageService = StorageService(secureStorage, box);
     });

@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketcrm/domain/models/task.dart';
 import 'package:pocketcrm/presentation/home/today_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pocketcrm/presentation/shared/swipe_to_delete_wrapper.dart';
+import 'package:pocketcrm/presentation/shared/snackbar_helper.dart';
+import 'package:pocketcrm/core/di/providers.dart';
 
 class TaskTodayCard extends ConsumerWidget {
   final Task task;
@@ -12,9 +15,26 @@ class TaskTodayCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
+    return SwipeToDeleteWrapper(
+      itemKey: ValueKey('today_task_${task.id}'),
+      confirmTitle: 'Elimina task',
+      confirmMessage: 'Vuoi eliminare \'${task.title}\'?',
+      onDelete: () async {
+        try {
+          await ref.read(tasksProvider.notifier).deleteTask(task.id);
+          ref.invalidate(todayNotifierProvider);
+          if (context.mounted) {
+            SnackbarHelper.showSuccess(context, 'Task eliminato');
+          }
+        } catch (e) {
+          if (context.mounted) {
+            SnackbarHelper.showError(context, 'Errore durante l\'eliminazione');
+          }
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        decoration: BoxDecoration(
         color: isOverdue
           ? Theme.of(context).colorScheme.error.withOpacity(0.08)
           : Theme.of(context).cardColor,
@@ -49,7 +69,8 @@ class TaskTodayCard extends ConsumerWidget {
               style: Theme.of(context).textTheme.bodySmall),
           ],
         ) : null,
-        trailing: task.dueAt != null ? _buildTrailing(context, task.dueAt!) : null,
+          trailing: task.dueAt != null ? _buildTrailing(context, task.dueAt!) : null,
+        ),
       ),
     );
   }

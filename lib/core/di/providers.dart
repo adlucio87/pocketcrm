@@ -172,6 +172,34 @@ class Contacts extends _$Contacts {
     
     return updatedContact;
   }
+
+  Future<void> deleteContact(String id) async {
+    final currentState = state.value;
+    List<Contact>? previousState;
+
+    // Optimistic update
+    if (currentState != null) {
+      previousState = List.from(currentState);
+      final newList = currentState.where((c) => c.id != id).toList();
+      state = AsyncValue.data(newList);
+    }
+
+    try {
+      final repo = await ref.read(crmRepositoryProvider.future);
+      await repo.deleteContact(id);
+
+      // Invalidate related providers or detail providers
+      ref.invalidate(contactDetailProvider(id));
+    } catch (e) {
+      // Revert optimistic update on error
+      if (previousState != null) {
+        state = AsyncValue.data(previousState);
+      } else {
+        ref.invalidateSelf();
+      }
+      rethrow;
+    }
+  }
 }
 
 @riverpod
@@ -224,6 +252,29 @@ class ContactNotes extends _$ContactNotes {
     }
 
     return newNote;
+  }
+
+  Future<void> deleteNote(String noteId) async {
+    final currentState = state.value;
+    List<Note>? previousState;
+
+    if (currentState != null) {
+      previousState = List.from(currentState);
+      final newList = currentState.where((n) => n.id != noteId).toList();
+      state = AsyncValue.data(newList);
+    }
+
+    try {
+      final repo = await ref.read(crmRepositoryProvider.future);
+      await repo.deleteNote(noteId);
+    } catch (e) {
+      if (previousState != null) {
+        state = AsyncValue.data(previousState);
+      } else {
+        ref.invalidateSelf();
+      }
+      rethrow;
+    }
   }
 }
 
@@ -278,6 +329,29 @@ class CompanyNotes extends _$CompanyNotes {
     }
 
     return newNote;
+  }
+
+  Future<void> deleteNote(String noteId) async {
+    final currentState = state.value;
+    List<Note>? previousState;
+
+    if (currentState != null) {
+      previousState = List.from(currentState);
+      final newList = currentState.where((n) => n.id != noteId).toList();
+      state = AsyncValue.data(newList);
+    }
+
+    try {
+      final repo = await ref.read(crmRepositoryProvider.future);
+      await repo.deleteNote(noteId);
+    } catch (e) {
+      if (previousState != null) {
+        state = AsyncValue.data(previousState);
+      } else {
+        ref.invalidateSelf();
+      }
+      rethrow;
+    }
   }
 }
 
@@ -398,5 +472,29 @@ class Tasks extends _$Tasks {
     }
 
     return updatedTask;
+  }
+
+  Future<void> deleteTask(String id) async {
+    final currentState = state.value;
+    List<Task>? previousState;
+
+    if (currentState != null) {
+      previousState = List.from(currentState);
+      final newList = currentState.where((t) => t.id != id).toList();
+      state = AsyncValue.data(newList);
+    }
+
+    try {
+      final repo = await ref.read(crmRepositoryProvider.future);
+      await repo.deleteTask(id);
+      await NotificationService().cancelTaskReminder(id);
+    } catch (e) {
+      if (previousState != null) {
+        state = AsyncValue.data(previousState);
+      } else {
+        ref.invalidateSelf();
+      }
+      rethrow;
+    }
   }
 }

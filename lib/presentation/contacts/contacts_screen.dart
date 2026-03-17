@@ -9,6 +9,7 @@ import 'package:flutter_contacts/flutter_contacts.dart' as fc;
 import 'package:pocketcrm/presentation/shared/skeleton_loading.dart';
 import 'package:pocketcrm/presentation/shared/snackbar_helper.dart';
 import 'package:pocketcrm/presentation/shared/empty_state_widget.dart';
+import 'package:pocketcrm/presentation/shared/swipe_to_delete_wrapper.dart';
 
 class ContactsScreen extends ConsumerStatefulWidget {
   const ContactsScreen({super.key});
@@ -127,12 +128,28 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                   }
                 }
                 final contact = contacts[index];
-                return ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
-                  leading: CircleAvatar(
+                return SwipeToDeleteWrapper(
+                  itemKey: ValueKey('contact_${contact.id}'),
+                  confirmTitle: 'Elimina contatto',
+                  confirmMessage: 'Sei sicuro di voler eliminare ${contact.firstName} ${contact.lastName}?\nQuesta azione non può essere annullata.',
+                  onDelete: () async {
+                    try {
+                      await ref.read(contactsProvider.notifier).deleteContact(contact.id);
+                      if (context.mounted) {
+                        SnackbarHelper.showSuccess(context, 'Contatto eliminato');
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        SnackbarHelper.showError(context, 'Errore durante l\'eliminazione');
+                      }
+                    }
+                  },
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
+                    leading: CircleAvatar(
                     backgroundColor: Theme.of(
                       context,
                     ).colorScheme.primaryContainer,
@@ -165,8 +182,9 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  trailing: const Icon(Icons.chevron_right, size: 20),
-                  onTap: () => context.push('/contacts/${contact.id}'),
+                    trailing: const Icon(Icons.chevron_right, size: 20),
+                    onTap: () => context.push('/contacts/${contact.id}'),
+                  ),
                 );
               },
             ),

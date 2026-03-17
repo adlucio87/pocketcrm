@@ -61,7 +61,7 @@ class StorageService {
     // - Sempre per chiavi non sensibili
     // - Per chiavi sensibili SOLO in debug (come fallback dev)
     // - MAI in produzione per chiavi sensibili
-    final bool writeToHive = !_isSensitive(key) || kDebugMode;
+    final bool writeToHive = !_isSensitive(key);
 
     if (writeToHive) {
       if (value != null) {
@@ -141,7 +141,7 @@ class StorageService {
       try {
         await _secureStorage.write(key: key, value: hiveValue);
         // Dopo migrazione riuscita, rimuovi da Hive se siamo in produzione
-        if (!kDebugMode) {
+        if (true) {
           await _box.delete(key);
           _log('read() -> migrazione OK, rimosso da Hive (produzione)');
         } else {

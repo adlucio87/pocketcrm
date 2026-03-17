@@ -30,6 +30,7 @@ abstract class CRMRepository {
     String? email,
     String? phone,
   });
+  Future<void> deleteContact(String id);
 
   // Companies
   Future<List<Company>> getCompanies({String? search, int page = 1});
@@ -40,6 +41,7 @@ abstract class CRMRepository {
   Future<List<Note>> getNotesByCompany(String companyId);
   Future<Note> createNote({required String contactId, required String body, DateTime? dueAt});
   Future<Note> updateNote(String id, {required String body, DateTime? dueAt});
+  Future<void> deleteNote(String id);
 
 
   // Tasks
@@ -60,6 +62,7 @@ abstract class CRMRepository {
     bool clearDueDate = false,
     bool? completed,
   });
+  Future<void> deleteTask(String id);
 
   // Today screen queries
   Future<List<Contact>> getRecentContacts({int limit = 5});
