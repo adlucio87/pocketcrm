@@ -30,8 +30,6 @@ class StorageService {
     );
   }
 
-  bool get _isSensitiveInProd => !kDebugMode;
-
   bool _isSensitive(String key) => _sensitiveKeys.contains(key);
 
   // ---------------------------------------------------------------------------
@@ -59,8 +57,7 @@ class StorageService {
 
     // Scrivi su Hive:
     // - Sempre per chiavi non sensibili
-    // - Per chiavi sensibili SOLO in debug (come fallback dev)
-    // - MAI in produzione per chiavi sensibili
+    // - MAI per chiavi sensibili
     final bool writeToHive = !_isSensitive(key);
 
     if (writeToHive) {
@@ -70,12 +67,6 @@ class StorageService {
       } else {
         await _box.delete(key);
         _log('write() -> Hive DELETE OK');
-      }
-    } else {
-      // Chiave sensibile in produzione: assicurati che Hive sia pulito
-      if (_box.containsKey(key)) {
-        await _box.delete(key);
-        _log('write() -> Hive: rimossa chiave sensibile da produzione');
       }
     }
 
@@ -102,10 +93,8 @@ class StorageService {
 
     // 2. Secure storage (source of truth)
     String? value;
-    bool secureReadOk = false;
     try {
       value = await _secureStorage.read(key: key);
-      secureReadOk = true;
       _log('read() -> secure storage: ${value != null ? "HIT" : "MISS"}');
     } catch (e) {
       _logWarn('read() -> secure storage FAILED: $e');
@@ -118,12 +107,11 @@ class StorageService {
 
     // 3. Fallback Hive
     // - Per chiavi non sensibili: sempre
-    // - Per chiavi sensibili: solo in debug
-    // - In produzione per chiavi sensibili: mai (ritorna null, forza re-login)
-    final bool canReadFromHive = !_isSensitive(key) || kDebugMode;
+    // - Per chiavi sensibili: mai
+    final bool canReadFromHive = !_isSensitive(key);
 
     if (!canReadFromHive) {
-      _log('read() -> Hive skip: chiave sensibile in produzione');
+      _log('read() -> Hive skip: chiave sensibile');
       return null;
     }
 
@@ -134,23 +122,6 @@ class StorageService {
 
     // Trovato in Hive: aggiorna cache
     _cache[key] = hiveValue;
-
-    // Migrazione automatica verso secure storage (se non ci era riuscito prima)
-    if (secureReadOk && _isSensitive(key)) {
-      _log('read() -> migrazione automatica da Hive a secure storage...');
-      try {
-        await _secureStorage.write(key: key, value: hiveValue);
-        // Dopo migrazione riuscita, rimuovi da Hive se siamo in produzione
-        if (true) {
-          await _box.delete(key);
-          _log('read() -> migrazione OK, rimosso da Hive (produzione)');
-        } else {
-          _log('read() -> migrazione OK');
-        }
-      } catch (e) {
-        _logWarn('read() -> migrazione fallita: $e');
-      }
-    }
 
     return hiveValue;
   }
