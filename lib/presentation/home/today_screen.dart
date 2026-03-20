@@ -31,7 +31,7 @@ class TodayScreen extends ConsumerWidget {
         tooltip: 'Add',
         heroTag: 'speed-dial-hero-tag',
         elevation: 8.0,
-        animationCurve: Curves.elasticInOut,
+        animationCurve: Curves.easeOutCubic,
         isOpenOnStart: false,
         children: [
           SpeedDialChild(
