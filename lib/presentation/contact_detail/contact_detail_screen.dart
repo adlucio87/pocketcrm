@@ -20,6 +20,7 @@ import 'package:pocketcrm/core/notifications/notification_service.dart';
 import 'package:pocketcrm/domain/services/contact_share_service.dart';
 import 'package:pocketcrm/core/utils/platform_utils.dart';
 import 'package:pocketcrm/presentation/contact_detail/voice_note_sheet.dart';
+import 'package:pocketcrm/core/utils/demo_utils.dart';
 
 class ContactDetailScreen extends ConsumerStatefulWidget {
   final String id;
@@ -91,6 +92,8 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
               icon: const Icon(Icons.delete),
               tooltip: 'Delete contact',
               onPressed: () async {
+                if (!await DemoUtils.checkDemoAction(context, ref)) return;
+
                 final confirm = await DialogHelper.showDeleteConfirmDialog(
                   context: context,
                   title: 'Elimina contatto',
@@ -374,6 +377,8 @@ class _AddNoteSheetState extends ConsumerState<_AddNoteSheet> {
   }
 
   Future<void> _save() async {
+    if (!await DemoUtils.checkDemoAction(context, ref)) return;
+
     final text = _bodyController.text.trim();
     if (text.isEmpty) return;
     setState(() => _isLoading = true);

@@ -4,6 +4,7 @@ import 'package:pocketcrm/core/di/providers.dart';
 import 'package:pocketcrm/domain/models/contact.dart';
 import 'package:pocketcrm/presentation/shared/snackbar_helper.dart';
 import 'package:pocketcrm/shared/widgets/phone_input_field.dart';
+import 'package:pocketcrm/core/utils/demo_utils.dart';
 
 class EditContactSheet extends ConsumerStatefulWidget {
   final Contact contact;
@@ -171,6 +172,8 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
   }
 
   Future<void> _saveContact() async {
+    if (!await DemoUtils.checkDemoAction(context, ref)) return;
+
     setState(() {
       _errorMessage = null;
     });

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketcrm/presentation/contact_detail/voice_note_provider.dart';
 import 'package:pocketcrm/presentation/shared/snackbar_helper.dart';
+import 'package:pocketcrm/core/utils/demo_utils.dart';
 
 class VoiceNoteSheet extends ConsumerStatefulWidget {
   final String contactId;
@@ -296,7 +297,8 @@ class _VoiceNoteSheetState extends ConsumerState<VoiceNoteSheet>
         ),
         const SizedBox(height: 24),
         ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
+            if (!await DemoUtils.checkDemoAction(context, ref)) return;
             ref
                 .read(voiceNoteNotifierProvider.notifier)
                 .saveNote(widget.contactId, _textController.text.trim());

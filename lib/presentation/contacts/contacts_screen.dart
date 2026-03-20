@@ -11,6 +11,7 @@ import 'package:pocketcrm/presentation/shared/snackbar_helper.dart';
 import 'package:pocketcrm/shared/widgets/phone_input_field.dart';
 import 'package:pocketcrm/presentation/shared/empty_state_widget.dart';
 import 'package:pocketcrm/presentation/shared/swipe_to_delete_wrapper.dart';
+import 'package:pocketcrm/core/utils/demo_utils.dart';
 
 class ContactsScreen extends ConsumerStatefulWidget {
   const ContactsScreen({super.key});
@@ -134,6 +135,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                   confirmTitle: 'Elimina contatto',
                   confirmMessage: 'Sei sicuro di voler eliminare ${contact.firstName} ${contact.lastName}?\nQuesta azione non può essere annullata.',
                   onDelete: () async {
+                    if (!await DemoUtils.checkDemoAction(context, ref)) return;
                     try {
                       await ref.read(contactsProvider.notifier).deleteContact(contact.id);
                       if (context.mounted) {
@@ -195,8 +197,9 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showAddContactDialog(context);
+        onPressed: () async {
+          if (!await DemoUtils.checkDemoAction(context, ref)) return;
+          if (mounted) _showAddContactDialog(context);
         },
         child: const Icon(Icons.add),
       ),

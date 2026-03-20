@@ -1,15 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pocketcrm/core/utils/demo_utils.dart';
 
-class MainShell extends StatelessWidget {
+class MainShell extends ConsumerWidget {
   final Widget child;
 
   const MainShell({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDemo = ref.watch(isDemoModeProvider).valueOrNull ?? false;
+
     return Scaffold(
-      body: Scaffold(body: child),
+      body: Column(
+        children: [
+          if (isDemo)
+            Container(
+              height: 28,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.15),
+                border: const Border(
+                  bottom: BorderSide(color: Colors.amber, width: 1),
+                ),
+              ),
+              child: const Center(
+                child: Text(
+                  '🎭 Modalità demo · I dati si ripristinano ogni notte',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.amber,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          Expanded(
+            child: Scaffold(body: child),
+          ),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _calculateSelectedIndex(context),
         onDestinationSelected: (int index) => _onItemTapped(index, context),

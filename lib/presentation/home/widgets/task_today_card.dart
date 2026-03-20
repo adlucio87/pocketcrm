@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pocketcrm/presentation/shared/swipe_to_delete_wrapper.dart';
 import 'package:pocketcrm/presentation/shared/snackbar_helper.dart';
 import 'package:pocketcrm/core/di/providers.dart';
+import 'package:pocketcrm/core/utils/demo_utils.dart';
 
 class TaskTodayCard extends ConsumerWidget {
   final Task task;
@@ -20,6 +21,7 @@ class TaskTodayCard extends ConsumerWidget {
       confirmTitle: 'Elimina task',
       confirmMessage: 'Vuoi eliminare \'${task.title}\'?',
       onDelete: () async {
+        if (!await DemoUtils.checkDemoAction(context, ref)) return;
         try {
           await ref.read(tasksProvider.notifier).deleteTask(task.id);
           ref.invalidate(todayNotifierProvider);
@@ -49,8 +51,10 @@ class TaskTodayCard extends ConsumerWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         leading: Checkbox(
           value: task.completed ?? false,
-          onChanged: (_) => ref.read(todayNotifierProvider.notifier)
-            .completeTask(task.id),
+          onChanged: (_) async {
+            if (!await DemoUtils.checkDemoAction(context, ref)) return;
+            ref.read(todayNotifierProvider.notifier).completeTask(task.id);
+          },
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         ),
         title: Text(

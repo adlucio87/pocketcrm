@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/di/providers.dart';
 import 'scan_provider.dart';
+import 'package:pocketcrm/core/utils/demo_utils.dart';
 
 class ScanReviewScreen extends ConsumerStatefulWidget {
   const ScanReviewScreen({super.key});
@@ -156,6 +157,8 @@ class _ScanReviewScreenState extends ConsumerState<ScanReviewScreen> {
   }
 
   Future<void> _save() async {
+    if (!await DemoUtils.checkDemoAction(context, ref)) return;
+
     if (_firstName.text.trim().isEmpty && _email.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Enter at least name or email')),
@@ -229,7 +232,7 @@ class _ConfidenceBanner extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: color.withOpacity(0.1),
+      color: color.withValues(alpha: 0.1),
       child: Text(message,
         style: TextStyle(color: color, fontWeight: FontWeight.w500, fontSize: 13)),
     );

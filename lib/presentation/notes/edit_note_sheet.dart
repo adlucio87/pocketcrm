@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketcrm/core/di/providers.dart';
 import 'package:pocketcrm/domain/models/note.dart';
 import 'package:pocketcrm/presentation/shared/snackbar_helper.dart';
+import 'package:pocketcrm/core/utils/demo_utils.dart';
 
 class EditNoteSheet extends ConsumerStatefulWidget {
   final Note note;
@@ -116,6 +117,8 @@ class _EditNoteSheetState extends ConsumerState<EditNoteSheet> {
   }
 
   Future<void> _saveNote() async {
+    if (!await DemoUtils.checkDemoAction(context, ref)) return;
+
     final text = _bodyController.text.trim();
     if (text.isEmpty) return;
 

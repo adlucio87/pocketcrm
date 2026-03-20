@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pocketcrm/presentation/shared/swipe_to_delete_wrapper.dart';
 import 'package:pocketcrm/presentation/shared/dialog_helper.dart';
 import 'package:pocketcrm/presentation/home/today_provider.dart';
+import 'package:pocketcrm/core/utils/demo_utils.dart';
 
 class TasksScreen extends ConsumerStatefulWidget {
   const TasksScreen({super.key});
@@ -93,6 +94,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                   confirmTitle: 'Elimina task',
                   confirmMessage: 'Vuoi eliminare \'${task.title}\'?',
                   onDelete: () async {
+                    if (!await DemoUtils.checkDemoAction(context, ref)) return;
                     try {
                       await ref.read(tasksProvider.notifier).deleteTask(task.id);
                       ref.invalidate(todayNotifierProvider);
@@ -108,16 +110,19 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                   child: ListTile(
                     leading: Checkbox(
                       value: task.completed,
-                    onChanged: (val) {
+                    onChanged: (val) async {
+                      if (!await DemoUtils.checkDemoAction(context, ref)) return;
                       if (val != null) {
                         ref
                             .read(tasksProvider.notifier)
                             .updateTask(task.id, completed: val);
                         
-                        SnackbarHelper.showSuccess(
-                          context,
-                          val ? 'Task completed' : 'Task restored',
-                        );
+                        if (context.mounted) {
+                          SnackbarHelper.showSuccess(
+                            context,
+                            val ? 'Task completed' : 'Task restored',
+                          );
+                        }
                       }
                     },
                   ),
@@ -231,8 +236,9 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showAddTaskDialog(context);
+        onPressed: () async {
+          if (!await DemoUtils.checkDemoAction(context, ref)) return;
+          if (mounted) _showAddTaskDialog(context);
         },
         child: const Icon(Icons.add),
       ),
@@ -548,6 +554,7 @@ class _EditTaskSheetState extends ConsumerState<_EditTaskSheet> {
                   IconButton(
                     icon: const Icon(Icons.delete),
                     onPressed: () async {
+                      if (!await DemoUtils.checkDemoAction(context, ref)) return;
                       final confirm = await DialogHelper.showDeleteConfirmDialog(
                         context: context,
                         title: 'Elimina task',
@@ -650,6 +657,7 @@ class _EditTaskSheetState extends ConsumerState<_EditTaskSheet> {
                 onPressed: _isLoading
                     ? null
                     : () async {
+                        if (!await DemoUtils.checkDemoAction(context, ref)) return;
                         setState(() { _errorMessage = null; });
                         if (_formKey.currentState!.validate()) {
                           setState(() { _isLoading = true; });

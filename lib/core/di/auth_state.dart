@@ -24,6 +24,7 @@ class AuthState extends _$AuthState {
   Future<void> logout() async {
     final storage = ref.read(storageServiceProvider);
     await storage.delete(key: 'api_token');
+    await storage.delete(key: 'is_demo_mode');
     state = const AsyncValue.data(false);
   }
 }
