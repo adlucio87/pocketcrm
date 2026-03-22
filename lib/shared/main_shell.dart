@@ -13,33 +13,37 @@ class MainShell extends ConsumerWidget {
     final isDemo = ref.watch(isDemoModeProvider).valueOrNull ?? false;
 
     return Scaffold(
-      body: Column(
-        children: [
-          if (isDemo)
-            Container(
-              height: 28,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.amber.withValues(alpha: 0.15),
-                border: const Border(
-                  bottom: BorderSide(color: Colors.amber, width: 1),
+      body: SafeArea(
+        top: true,
+        bottom: false,
+        child: Column(
+          children: [
+            if (isDemo)
+              Container(
+                height: 28,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.15),
+                  border: const Border(
+                    bottom: BorderSide(color: Colors.amber, width: 1),
+                  ),
                 ),
-              ),
-              child: const Center(
-                child: Text(
-                  '🎭 Modalità demo · I dati si ripristinano ogni notte',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.amber,
-                    fontWeight: FontWeight.bold,
+                child: const Center(
+                  child: Text(
+                    '🎭 Modalità demo · I dati si ripristinano ogni notte',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.amber,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
+            Expanded(
+              child: Scaffold(body: child),
             ),
-          Expanded(
-            child: Scaffold(body: child),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _calculateSelectedIndex(context),
