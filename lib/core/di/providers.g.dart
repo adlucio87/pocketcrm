@@ -40,6 +40,23 @@ final storageServiceProvider = Provider<StorageService>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef StorageServiceRef = ProviderRef<StorageService>;
+String _$isDemoModeHash() => r'c1aef0d9ced4c3ccb4049b1cd151c3851fcd8e85';
+
+/// See also [isDemoMode].
+@ProviderFor(isDemoMode)
+final isDemoModeProvider = FutureProvider<bool>.internal(
+  isDemoMode,
+  name: r'isDemoModeProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$isDemoModeHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef IsDemoModeRef = FutureProviderRef<bool>;
 String _$crmRepositoryHash() => r'79becb479b3eb2cd2061282801710ac980410308';
 
 /// See also [crmRepository].
@@ -74,7 +91,7 @@ final currentUserNameProvider = FutureProvider<String>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CurrentUserNameRef = FutureProviderRef<String>;
-String _$contactsHash() => r'46d63dcc02f0f1f57562f9f9ba611674e1f0b82f';
+String _$contactsHash() => r'e2f94eefaaec7bfd567c03b82d99cea913e33a1f';
 
 /// See also [Contacts].
 @ProviderFor(Contacts)
@@ -243,7 +260,7 @@ class _ContactDetailProviderElement
   String get id => (origin as ContactDetailProvider).id;
 }
 
-String _$contactNotesHash() => r'bdb21a28098f3b8c8168390aef647edd2f90ffd5';
+String _$contactNotesHash() => r'a83f5d95a8994bbbe13e8a58693b7b0b28539b26';
 
 abstract class _$ContactNotes
     extends BuildlessAutoDisposeAsyncNotifier<List<Note>> {
@@ -937,7 +954,7 @@ final taskFilterProvider =
     );
 
 typedef _$TaskFilter = AutoDisposeNotifier<bool>;
-String _$tasksHash() => r'49ee0e3ecbbbe3e8f2c3dfb631d8900d01f7ad3a';
+String _$tasksHash() => r'2aa61d65a7b9183bd95ac39a03a7eea9db8922c5';
 
 /// See also [Tasks].
 @ProviderFor(Tasks)

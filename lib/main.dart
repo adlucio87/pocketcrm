@@ -12,6 +12,7 @@ import 'package:pocketcrm/core/notifications/notification_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:pocketcrm/core/config/app_config.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 Future<void> main() async {
   await SentryFlutter.init(
@@ -23,7 +24,8 @@ Future<void> main() async {
       options.debug = false;
     },
     appRunner: () async {
-      WidgetsFlutterBinding.ensureInitialized();
+      WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+      FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
       await NotificationService().initialize();
 
@@ -44,6 +46,9 @@ Future<void> main() async {
           child: const PocketCRMApp(),
         ),
       );
+
+      // Rimuoviamo lo splash screen una volta che l'app è pronta
+      FlutterNativeSplash.remove();
     },
   );
 }

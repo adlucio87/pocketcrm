@@ -28,6 +28,13 @@ StorageService storageService(StorageServiceRef ref) {
 }
 
 @Riverpod(keepAlive: true)
+Future<bool> isDemoMode(IsDemoModeRef ref) async {
+  final storage = ref.watch(storageServiceProvider);
+  final value = await storage.read(key: 'is_demo_mode');
+  return value == 'true';
+}
+
+@Riverpod(keepAlive: true)
 Future<CRMRepository> crmRepository(CrmRepositoryRef ref) async {
   final storage = ref.watch(storageServiceProvider);
   final baseUrl = await storage.read(key: 'instance_url');
@@ -109,6 +116,9 @@ class Contacts extends _$Contacts {
     String? email,
     String? phone,
   }) async {
+    final isDemo = await ref.read(isDemoModeProvider.future);
+    if (isDemo) throw Exception('Demo mode: Modification is not allowed.');
+
     final repo = await ref.read(crmRepositoryProvider.future);
     final newContact = await repo.createContact(
       firstName: firstName,
@@ -137,6 +147,9 @@ class Contacts extends _$Contacts {
     String? email,
     String? phone,
   }) async {
+    final isDemo = await ref.read(isDemoModeProvider.future);
+    if (isDemo) throw Exception('Demo mode: Modification is not allowed.');
+
     final repo = await ref.read(crmRepositoryProvider.future);
     final updatedContact = await repo.updateContact(
       id,
@@ -174,6 +187,9 @@ class Contacts extends _$Contacts {
   }
 
   Future<void> deleteContact(String id) async {
+    final isDemo = await ref.read(isDemoModeProvider.future);
+    if (isDemo) throw Exception('Demo mode: Modification is not allowed.');
+
     final currentState = state.value;
     List<Contact>? previousState;
 
@@ -220,6 +236,9 @@ class ContactNotes extends _$ContactNotes {
   }
 
   Future<Note> updateNote(String noteId, String body, {DateTime? dueAt}) async {
+    final isDemo = await ref.read(isDemoModeProvider.future);
+    if (isDemo) throw Exception('Demo mode: Modification is not allowed.');
+
     final repo = await ref.read(crmRepositoryProvider.future);
     final updatedNote = await repo.updateNote(noteId, body: body, dueAt: dueAt);
 
@@ -237,6 +256,9 @@ class ContactNotes extends _$ContactNotes {
   }
 
   Future<Note> addNote(String contactId, String body, {DateTime? dueAt}) async {
+    final isDemo = await ref.read(isDemoModeProvider.future);
+    if (isDemo) throw Exception('Demo mode: Modification is not allowed.');
+
     final repo = await ref.read(crmRepositoryProvider.future);
     final newNote = await repo.createNote(
       contactId: contactId,
@@ -255,6 +277,9 @@ class ContactNotes extends _$ContactNotes {
   }
 
   Future<void> deleteNote(String noteId) async {
+    final isDemo = await ref.read(isDemoModeProvider.future);
+    if (isDemo) throw Exception('Demo mode: Modification is not allowed.');
+
     final currentState = state.value;
     List<Note>? previousState;
 
@@ -297,6 +322,9 @@ class CompanyNotes extends _$CompanyNotes {
   }
 
   Future<Note> updateNote(String noteId, String body, {DateTime? dueAt}) async {
+    final isDemo = await ref.read(isDemoModeProvider.future);
+    if (isDemo) throw Exception('Demo mode: Modification is not allowed.');
+
     final repo = await ref.read(crmRepositoryProvider.future);
     final updatedNote = await repo.updateNote(noteId, body: body, dueAt: dueAt);
 
@@ -314,6 +342,9 @@ class CompanyNotes extends _$CompanyNotes {
   }
 
   Future<Note> addNote(String companyId, String body, {DateTime? dueAt}) async {
+    final isDemo = await ref.read(isDemoModeProvider.future);
+    if (isDemo) throw Exception('Demo mode: Modification is not allowed.');
+
     final repo = await ref.read(crmRepositoryProvider.future);
     final newNote = await repo.createNote(
       contactId: '', // Usually handled differently for companies, but matching signature
@@ -332,6 +363,9 @@ class CompanyNotes extends _$CompanyNotes {
   }
 
   Future<void> deleteNote(String noteId) async {
+    final isDemo = await ref.read(isDemoModeProvider.future);
+    if (isDemo) throw Exception('Demo mode: Modification is not allowed.');
+
     final currentState = state.value;
     List<Note>? previousState;
 
@@ -415,6 +449,9 @@ class Tasks extends _$Tasks {
 
 
   Future<Task> addTask(String title, {DateTime? dueAt, String? contactId}) async {
+    final isDemo = await ref.read(isDemoModeProvider.future);
+    if (isDemo) throw Exception('Demo mode: Modification is not allowed.');
+
     final repo = await ref.read(crmRepositoryProvider.future);
     final newTask = await repo.createTask(
       title: title,
@@ -436,6 +473,9 @@ class Tasks extends _$Tasks {
   }
 
   Future<Task> updateTask(String id, {String? title, String? body, DateTime? dueAt, bool clearDueDate = false, bool? completed}) async {
+    final isDemo = await ref.read(isDemoModeProvider.future);
+    if (isDemo) throw Exception('Demo mode: Modification is not allowed.');
+
     final repo = await ref.read(crmRepositoryProvider.future);
     final updatedTask = await repo.updateTask(
       id,
@@ -475,6 +515,9 @@ class Tasks extends _$Tasks {
   }
 
   Future<void> deleteTask(String id) async {
+    final isDemo = await ref.read(isDemoModeProvider.future);
+    if (isDemo) throw Exception('Demo mode: Modification is not allowed.');
+
     final currentState = state.value;
     List<Task>? previousState;
 

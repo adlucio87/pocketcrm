@@ -5,6 +5,7 @@ import 'package:pocketcrm/core/theme/theme_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pocketcrm/core/notifications/notification_service.dart';
 import 'package:pocketcrm/core/di/providers.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -138,6 +139,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     }
                   : null,
             ),
+          ),
+          const SizedBox(height: 32),
+          const Text(
+            'Privacy & Termini',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ListTile(
+            leading: const Icon(Icons.privacy_tip_outlined),
+            title: const Text('Privacy Policy'),
+            trailing: const Icon(Icons.open_in_new, size: 20),
+            onTap: () => launchUrl(Uri.parse('https://privacy.luciosoft.it/twentymobilecrm/')),
+          ),
+          ListTile(
+            leading: const Icon(Icons.description_outlined),
+            title: const Text('Termini di Utilizzo (EULA)'),
+            trailing: const Icon(Icons.open_in_new, size: 20),
+            onTap: () => launchUrl(Uri.parse('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')),
           ),
           const SizedBox(height: 48),
           const Divider(),
