@@ -13,6 +13,7 @@ import 'package:pocketcrm/core/utils/platform_utils.dart';
 import 'package:pocketcrm/presentation/scan/scan_card_screen.dart';
 import 'package:pocketcrm/presentation/contacts/contacts_screen.dart';
 import 'package:pocketcrm/presentation/tasks/tasks_screen.dart';
+import 'package:pocketcrm/presentation/shared/error_state_widget.dart';
 
 class TodayScreen extends ConsumerWidget {
   const TodayScreen({super.key});
@@ -273,8 +274,13 @@ class TodayScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              error: (err, stack) => SliverToBoxAdapter(
-                child: Center(child: Text('Error: $err')),
+              error: (err, stack) => SliverFillRemaining(
+                hasScrollBody: false,
+                child: ErrorStateWidget(
+                  title: 'Loading error',
+                  message: err.toString().replaceAll('Exception: ', ''),
+                  onRetry: () => ref.read(todayNotifierProvider.notifier).refresh(),
+                ),
               ),
             ),
           ],

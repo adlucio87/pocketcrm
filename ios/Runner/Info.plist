@@ -66,5 +66,12 @@
 		<true/>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>mailto</string>
+			<string>tel</string>
+			<string>https</string>
+			<string>http</string>
+		</array>
 	</dict>
 </plist>

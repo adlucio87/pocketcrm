@@ -32,11 +32,21 @@ class NotificationService {
 
     try {
       // Imposta timezone locale del device
-      final String timezoneName = await _getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(timezoneName));
+      String timezoneName = await _getLocalTimezone();
+      
+      // La timezone locale restituita da Dart su Android può essere "GMT+2" o "CEST", 
+      // che non sono nomi IANA validi. Il pacchetto timezone si aspetta nomi tipo "Europe/Rome".
+      try {
+        tz.setLocalLocation(tz.getLocation(timezoneName));
+      } catch (e) {
+        // Fallback a UTC se il nome non è riconosciuto
+        tz.setLocalLocation(tz.getLocation('UTC'));
+      }
     } catch (e) {
-      if (kDebugMode) print('Timezone error: $e, fallback to UTC');
-      tz.setLocalLocation(tz.getLocation('UTC'));
+      // Qualsiasi altro errore durante l'inizializzazione timezone non deve bloccare l'app
+      try {
+        tz.setLocalLocation(tz.getLocation('UTC'));
+      } catch (_) {}
     }
 
     const AndroidInitializationSettings androidSettings =
@@ -55,11 +65,15 @@ class NotificationService {
       macOS: iosSettings,
     );
 
-    await _plugin.initialize(
-      initSettings,
-      onDidReceiveNotificationResponse: _onNotificationTapped,
-      onDidReceiveBackgroundNotificationResponse: _onNotificationTappedBackground,
-    );
+    try {
+      await _plugin.initialize(
+        initSettings,
+        onDidReceiveNotificationResponse: _onNotificationTapped,
+        onDidReceiveBackgroundNotificationResponse: _onNotificationTappedBackground,
+      );
+    } catch (e) {
+      if (kDebugMode) print('Notification plugin initialization failed: $e');
+    }
 
     // Controlla se l'app è stata aperta da una notifica
     final NotificationAppLaunchDetails? notificationAppLaunchDetails = await _plugin.getNotificationAppLaunchDetails();

@@ -20,6 +20,7 @@ import 'package:pocketcrm/core/utils/platform_utils.dart';
 import 'package:pocketcrm/presentation/contact_detail/voice_note_sheet.dart';
 import 'package:pocketcrm/core/utils/demo_utils.dart';
 import 'package:pocketcrm/core/utils/color_utils.dart';
+import 'package:pocketcrm/presentation/shared/error_state_widget.dart';
 
 class ContactDetailScreen extends ConsumerStatefulWidget {
   final String id;
@@ -174,7 +175,11 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
       body: detailAsync.when(
         data: (contact) => _buildDetail(context, contact),
         loading: () => const DetailSkeleton(),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) => ErrorStateWidget(
+          title: 'Loading error',
+          message: err.toString().replaceAll('Exception: ', ''),
+          onRetry: () => ref.invalidate(contactDetailProvider(widget.id)),
+        ),
       ),
     );
   }
@@ -252,7 +257,7 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
                   ),
                   onTap: contact.email != null
                       ? () async {
-                          final uri = Uri.parse('mailto:${contact.email}');
+                          final uri = Uri(scheme: 'mailto', path: contact.email);
                           if (await canLaunchUrl(uri)) {
                             await launchUrl(uri);
                           } else {
@@ -305,7 +310,7 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
                             }
                             return;
                           }
-                          final uri = Uri.parse('tel:${contact.phone}');
+                          final uri = Uri(scheme: 'tel', path: contact.phone);
                           if (await canLaunchUrl(uri)) {
                             await launchUrl(uri);
                           } else {

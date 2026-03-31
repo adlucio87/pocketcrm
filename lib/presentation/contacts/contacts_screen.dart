@@ -13,6 +13,7 @@ import 'package:pocketcrm/presentation/shared/swipe_action_wrapper.dart';
 import 'package:pocketcrm/core/utils/demo_utils.dart';
 import 'package:pocketcrm/core/utils/color_utils.dart';
 import 'package:pocketcrm/presentation/contacts/edit_contact_sheet.dart';
+import 'package:pocketcrm/presentation/shared/error_state_widget.dart';
 
 class ContactsScreen extends ConsumerStatefulWidget {
   const ContactsScreen({super.key});
@@ -219,7 +220,13 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           );
         },
         loading: () => const ListSkeleton(),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) => ErrorStateWidget(
+          title: 'Loading error',
+          message: err.toString().replaceAll('Exception: ', ''),
+          onRetry: () {
+            ref.invalidate(contactsProvider);
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {

@@ -8,6 +8,7 @@ import 'package:pocketcrm/presentation/shared/linked_contacts_widget.dart';
 import 'package:pocketcrm/presentation/shared/note_card.dart';
 import 'package:pocketcrm/presentation/shared/skeleton_loading.dart';
 import 'package:pocketcrm/presentation/shared/snackbar_helper.dart';
+import 'package:pocketcrm/presentation/shared/error_state_widget.dart';
 
 class CompanyDetailScreen extends ConsumerStatefulWidget {
   final String id;
@@ -41,7 +42,11 @@ class _CompanyDetailScreenState extends ConsumerState<CompanyDetailScreen> {
       body: detailAsync.when(
         data: (company) => _buildDetail(context, company),
         loading: () => const DetailSkeleton(),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) => ErrorStateWidget(
+          title: 'Error loading details',
+          message: err.toString().replaceAll('Exception: ', ''),
+          onRetry: () => ref.invalidate(companyDetailProvider(widget.id)),
+        ),
       ),
     );
   }

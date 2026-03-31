@@ -6,6 +6,7 @@ import 'package:pocketcrm/core/di/providers.dart';
 import 'package:pocketcrm/presentation/shared/linked_contacts_widget.dart';
 import 'package:pocketcrm/presentation/shared/skeleton_loading.dart';
 import 'package:pocketcrm/presentation/shared/empty_state_widget.dart';
+import 'package:pocketcrm/presentation/shared/error_state_widget.dart';
 import 'package:pocketcrm/core/utils/color_utils.dart';
 
 class CompaniesScreen extends ConsumerWidget {
@@ -148,7 +149,11 @@ class CompaniesScreen extends ConsumerWidget {
           );
         },
         loading: () => const ListSkeleton(),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) => ErrorStateWidget(
+          title: 'Loading error',
+          message: err.toString().replaceAll('Exception: ', ''),
+          onRetry: () => ref.invalidate(companiesProvider),
+        ),
       ),
     );
   }

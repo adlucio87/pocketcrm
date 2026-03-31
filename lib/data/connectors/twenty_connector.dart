@@ -13,6 +13,39 @@ class TwentyConnector implements CRMRepository {
 
   TwentyConnector({required this.client});
 
+  void _handleResultException(QueryResult result) {
+    if (!result.hasException) return;
+    
+    final exception = result.exception!;
+    final linkException = exception.linkException;
+    
+    if (linkException != null) {
+      final errorStr = linkException.toString();
+      if (errorStr.contains('SocketException') || 
+          errorStr.contains('NetworkError') || 
+          errorStr.contains('Connection closed')) {
+        throw Exception('It seems there\'s no internet connection. Please check your settings.');
+      }
+      if (errorStr.contains('Connection refused') || 
+          errorStr.contains('404') || 
+          errorStr.contains('Network unreachable')) {
+        throw Exception('The CRM endpoint is unreachable. Please verify the URL in settings.');
+      }
+      throw Exception('Connection error: $errorStr');
+    }
+
+    if (exception.graphqlErrors.isNotEmpty) {
+      final error = exception.graphqlErrors.first;
+      final msg = error.message.toLowerCase();
+      if (msg.contains('unauthorized') || msg.contains('forbidden')) {
+        throw Exception('Session expired or invalid token. Please reconnect in settings.');
+      }
+      throw Exception(error.message);
+    }
+    
+    throw Exception('An unexpected error occurred while communicating with the server.');
+  }
+
   @override
   Future<bool> testConnection(String baseUrl, String apiToken) async {
     const String query = r'''
@@ -153,7 +186,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.query(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
 
     final data = result.data?['people'];
     final edges = data?['edges'] as List? ?? [];
@@ -199,7 +232,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.query(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
 
     final edges = result.data?['people']?['edges'] as List?;
     if (edges == null || edges.isEmpty) throw Exception('Contact not found');
@@ -239,7 +272,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.query(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
 
     final edges = result.data?['people']?['edges'] as List?;
     if (edges == null) return [];
@@ -283,7 +316,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.query(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
 
     final edges = result.data?['taskTargets']?['edges'] as List?;
     if (edges == null) return [];
@@ -335,7 +368,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.mutate(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
 
     return Contact.fromTwenty(
       result.data?['createPerson'] as Map<String, dynamic>,
@@ -391,7 +424,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.mutate(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
 
     return Contact.fromTwenty(
       result.data?['updatePerson'] as Map<String, dynamic>,
@@ -412,7 +445,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.mutate(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
   }
 
   @override
@@ -450,7 +483,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.query(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
 
     final edges = result.data?['companies']?['edges'] as List?;
     if (edges == null) return [];
@@ -485,7 +518,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.query(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
 
     final edges = result.data?['companies']?['edges'] as List?;
     if (edges == null || edges.isEmpty) throw Exception('Company not found');
@@ -515,7 +548,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.query(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
 
     final edges = result.data?['noteTargets']?['edges'] as List?;
     if (edges == null) return [];
@@ -553,7 +586,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.query(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
 
     final edges = result.data?['noteTargets']?['edges'] as List?;
     if (edges == null) return [];
@@ -602,7 +635,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.mutate(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
 
     final data = result.data?['createNote'];
     final note = Note.fromTwenty(data as Map<String, dynamic>);
@@ -660,7 +693,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.mutate(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
 
     return Note.fromTwenty(
       result.data?['updateNote'] as Map<String, dynamic>,
@@ -681,7 +714,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.mutate(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
   }
 
   @override
@@ -835,10 +868,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final result = await client.query(options);
-
-    if (result.hasException) {
-      throw Exception(result.exception.toString());
-    }
+    _handleResultException(result);
 
     final edges = result.data?['people']?['edges'] as List?;
     if (edges == null) return [];
@@ -876,7 +906,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.query(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
 
     final edges = result.data?['tasks']?['edges'] as List?;
     if (edges == null) return [];
@@ -926,7 +956,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.mutate(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
 
     if (contactId != null) {
       final taskId = result.data?['createTask']?['id'];
@@ -1006,7 +1036,7 @@ class TwentyConnector implements CRMRepository {
     );
 
     final QueryResult result = await client.mutate(options);
-    if (result.hasException) throw Exception(result.exception.toString());
+    _handleResultException(result);
 
     final data = result.data?['updateTask'];
     

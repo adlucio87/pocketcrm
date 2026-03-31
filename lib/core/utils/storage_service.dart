@@ -94,10 +94,13 @@ class StorageService {
     // 2. Secure storage (source of truth)
     String? value;
     try {
-      value = await _secureStorage.read(key: key);
+      // Aggiungiamo un timeout per evitare hang infiniti su alcuni device Android
+      value = await _secureStorage
+          .read(key: key)
+          .timeout(const Duration(seconds: 2));
       _log('read() -> secure storage: ${value != null ? "HIT" : "MISS"}');
     } catch (e) {
-      _logWarn('read() -> secure storage FAILED: $e');
+      _logWarn('read() -> secure storage FAILED or TIMED OUT: $e');
     }
 
     if (value != null) {

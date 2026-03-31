@@ -27,29 +27,42 @@ Future<void> main() async {
       options.debug = false;
     },
     appRunner: () async {
+      try {
+        await NotificationService().initialize();
 
-      await NotificationService().initialize();
+        final appDocDir = await getApplicationSupportDirectory();
+        if (kDebugMode) print('Hive storage path: ${appDocDir.path}');
+        Hive.init(appDocDir.path);
 
-      final appDocDir = await getApplicationSupportDirectory();
-      if (kDebugMode) print('Hive storage path: ${appDocDir.path}');
-      Hive.init(appDocDir.path);
+        final box = await Hive.openBox<String>('app_storage');
+        if (kDebugMode) {
+          print('Hive box keys at startup: ${box.keys.toList()}');
+        }
 
-      final box = await Hive.openBox<String>('app_storage');
-      if (kDebugMode) {
-        print('Hive box keys at startup: ${box.keys.toList()}');
+        await initializeDateFormatting('it_IT', null);
+
+        runApp(
+          ProviderScope(
+            overrides: [hiveStorageBoxProvider.overrideWithValue(box)],
+            child: const PocketCRMApp(),
+          ),
+        );
+      } catch (e, stack) {
+        if (kDebugMode) {
+          print('Fatal error during initialization: $e');
+          print(stack);
+        }
+        // In case of error, still try to run the app to show an error or the UI
+        runApp(
+          ProviderScope(
+            overrides: [], // No box available
+            child: const PocketCRMApp(),
+          ),
+        );
+      } finally {
+        // Rimuoviamo lo splash screen una volta che l'app è pronta o è fallita
+        FlutterNativeSplash.remove();
       }
-
-      await initializeDateFormatting('it_IT', null);
-
-      runApp(
-        ProviderScope(
-          overrides: [hiveStorageBoxProvider.overrideWithValue(box)],
-          child: const PocketCRMApp(),
-        ),
-      );
-
-      // Rimuoviamo lo splash screen una volta che l'app è pronta
-      FlutterNativeSplash.remove();
     },
   );
 }
