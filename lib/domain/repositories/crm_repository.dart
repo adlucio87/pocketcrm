@@ -2,6 +2,7 @@ import 'package:pocketcrm/domain/models/company.dart';
 import 'package:pocketcrm/domain/models/contact.dart';
 import 'package:pocketcrm/domain/models/note.dart';
 import 'package:pocketcrm/domain/models/task.dart';
+import 'package:pocketcrm/domain/models/workflow/workflow.dart';
 
 abstract class CRMRepository {
   // Auth
@@ -63,6 +64,10 @@ abstract class CRMRepository {
     bool? completed,
   });
   Future<void> deleteTask(String id);
+
+  // Workflows
+  Future<List<Workflow>> getManualWorkflows(String objectType);
+  Future<bool> executeManualWorkflow(String workflowId, String recordId, Map<String, dynamic> payload);
 
   // Today screen queries
   Future<List<Contact>> getRecentContacts({int limit = 5});

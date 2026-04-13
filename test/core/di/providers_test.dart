@@ -19,6 +19,7 @@ void main() {
       container = ProviderContainer(
         overrides: [
           crmRepositoryProvider.overrideWith((ref) => mockCRMRepository),
+isDemoModeProvider.overrideWith((ref) => false),
         ],
       );
     });

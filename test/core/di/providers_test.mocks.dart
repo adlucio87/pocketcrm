@@ -11,6 +11,7 @@ import 'package:pocketcrm/domain/models/company.dart' as _i3;
 import 'package:pocketcrm/domain/models/contact.dart' as _i2;
 import 'package:pocketcrm/domain/models/note.dart' as _i4;
 import 'package:pocketcrm/domain/models/task.dart' as _i5;
+import 'package:pocketcrm/domain/models/workflow/workflow.dart' as _i9;
 import 'package:pocketcrm/domain/repositories/crm_repository.dart' as _i6;
 
 // ignore_for_file: type=lint
@@ -525,6 +526,34 @@ class MockCRMRepository extends _i1.Mock implements _i6.CRMRepository {
             returnValueForMissingStub: _i7.Future<void>.value(),
           )
           as _i7.Future<void>);
+
+  @override
+  _i7.Future<List<_i9.Workflow>> getManualWorkflows(String? objectType) =>
+      (super.noSuchMethod(
+            Invocation.method(#getManualWorkflows, [objectType]),
+            returnValue: _i7.Future<List<_i9.Workflow>>.value(<_i9.Workflow>[]),
+            returnValueForMissingStub: _i7.Future<List<_i9.Workflow>>.value(
+              <_i9.Workflow>[],
+            ),
+          )
+          as _i7.Future<List<_i9.Workflow>>);
+
+  @override
+  _i7.Future<bool> executeManualWorkflow(
+    String? workflowId,
+    String? recordId,
+    Map<String, dynamic>? payload,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#executeManualWorkflow, [
+              workflowId,
+              recordId,
+              payload,
+            ]),
+            returnValue: _i7.Future<bool>.value(false),
+            returnValueForMissingStub: _i7.Future<bool>.value(false),
+          )
+          as _i7.Future<bool>);
 
   @override
   _i7.Future<List<_i2.Contact>> getRecentContacts({int? limit = 5}) =>

@@ -4,6 +4,8 @@ import 'package:pocketcrm/domain/models/company.dart';
 import 'package:pocketcrm/domain/models/contact.dart';
 import 'package:pocketcrm/domain/models/note.dart';
 import 'package:pocketcrm/domain/models/task.dart';
+import 'package:pocketcrm/domain/models/workflow/workflow.dart';
+import 'package:pocketcrm/data/graphql/workflow_queries.dart';
 import 'package:pocketcrm/shared/widgets/phone_input_field.dart';
 import 'package:pocketcrm/core/data/country_codes.dart';
 import 'package:pocketcrm/domain/repositories/crm_repository.dart';
@@ -1059,4 +1061,47 @@ class TwentyConnector implements CRMRepository {
     final QueryResult result = await client.mutate(options);
     if (result.hasException) throw Exception(result.exception.toString());
   }
+
+  @override
+  Future<List<Workflow>> getManualWorkflows(String objectType) async {
+    final QueryOptions options = QueryOptions(
+      document: gql(getManualWorkflowsQuery),
+      variables: {
+        'objectType': objectType,
+      },
+      fetchPolicy: FetchPolicy.networkOnly,
+    );
+
+    final QueryResult result = await client.query(options);
+    _handleResultException(result);
+
+    if (result.data?['workflows']?['edges'] == null) {
+      return [];
+    }
+
+    final List edges = result.data!['workflows']['edges'];
+    return edges.map((e) => Workflow.fromTwenty(e['node'])).toList();
+  }
+
+  @override
+  Future<bool> executeManualWorkflow(String workflowId, String recordId, Map<String, dynamic> payload) async {
+    final MutationOptions options = MutationOptions(
+      document: gql(executeManualWorkflowMutation),
+      variables: {
+        'workflowId': workflowId,
+        'recordId': recordId,
+        'payload': payload,
+      },
+    );
+
+    final QueryResult result = await client.mutate(options);
+    _handleResultException(result);
+
+    final bool success = result.data?['triggerWorkflow']?['success'] ?? false;
+    if (!success && result.data?['triggerWorkflow']?['error']?['message'] != null) {
+        throw Exception(result.data!['triggerWorkflow']['error']['message']);
+    }
+    return success;
+  }
+
 }
