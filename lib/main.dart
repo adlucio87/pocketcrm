@@ -25,6 +25,18 @@ Future<void> main() async {
           : AppConfig.glitchtipDsn; // disabilitato in debug
       options.tracesSampleRate = 1.0;
       options.debug = false;
+      // Filter out non-fatal network errors that spam GlitchTip
+      options.beforeSend = (event, hint) {
+        final exceptions = event.exceptions;
+        if (exceptions != null && exceptions.isNotEmpty) {
+          final errorValue = exceptions.first.value ?? '';
+          if (errorValue.contains('Failed to load font with url') ||
+              errorValue.contains('fonts.gstatic.com')) {
+            return null; // Ignore and drop this event
+          }
+        }
+        return event;
+      };
     },
     appRunner: () async {
       try {

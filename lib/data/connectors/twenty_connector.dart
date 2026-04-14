@@ -491,6 +491,56 @@ class TwentyConnector implements CRMRepository {
   }
 
   @override
+  Future<Company> updateCompany(String id, {String? name, String? domainName}) async {
+    const String mutation = r'''
+      mutation UpdateCompany($id: UUID!, $input: CompanyUpdateInput!) {
+        updateCompany(id: $id, data: $input) {
+          id
+          name
+          domainName { primaryLinkUrl }
+          createdAt
+        }
+      }
+    ''';
+
+    final input = <String, dynamic>{};
+    if (name != null) input['name'] = name;
+    if (domainName != null) {
+       // Support clearing domain by providing empty string
+       input['domainName'] = domainName.isEmpty ? null : {'primaryLinkUrl': domainName};
+    }
+
+    final MutationOptions options = MutationOptions(
+      document: gql(mutation),
+      variables: {'id': id, 'input': input},
+    );
+
+    final QueryResult result = await client.mutate(options);
+    _handleResultException(result);
+
+    return Company.fromTwenty(
+      result.data?['updateCompany'] as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<void> deleteCompany(String id) async {
+    const String mutation = r'''
+      mutation DeleteCompany($id: UUID!) {
+        deleteCompany(id: $id) { id }
+      }
+    ''';
+
+    final MutationOptions options = MutationOptions(
+      document: gql(mutation),
+      variables: {'id': id},
+    );
+
+    final QueryResult result = await client.mutate(options);
+    _handleResultException(result);
+  }
+
+  @override
   Future<List<Company>> getCompanies({String? search, int page = 1}) async {
     const String query = r'''
       query GetCompanies($filter: CompanyFilterInput, $first: Int) {

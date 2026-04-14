@@ -60,33 +60,23 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Contacts'),
-        actions: const [],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
+        title: TextField(
+          decoration: InputDecoration(
+            hintText: 'Search contacts...',
+            prefixIcon: const Icon(Icons.search),
+            contentPadding: const EdgeInsets.symmetric(vertical: 0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: BorderSide.none,
             ),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search contacts...',
-                prefixIcon: const Icon(Icons.search),
-                contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Theme.of(context).brightness == Brightness.dark
-                    ? Theme.of(context).colorScheme.surfaceContainerHighest
-                    : Colors.white,
-              ),
-              onChanged: _onSearchChanged,
-            ),
+            filled: true,
+            fillColor: Theme.of(context).brightness == Brightness.dark
+                ? Theme.of(context).colorScheme.surfaceContainerHighest
+                : Colors.white,
           ),
+          onChanged: _onSearchChanged,
         ),
+        actions: const [],
       ),
       body: contactsAsync.when(
         data: (contacts) {

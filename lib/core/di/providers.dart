@@ -451,6 +451,56 @@ class Companies extends _$Companies {
 
     return newCompany;
   }
+
+  Future<Company> updateCompany(String id, {String? name, String? domainName}) async {
+    final isDemo = await ref.read(isDemoModeProvider.future);
+    if (isDemo) throw Exception('Demo mode: Modification is not allowed.');
+
+    final repo = await ref.read(crmRepositoryProvider.future);
+    final updatedCompany = await repo.updateCompany(id, name: name, domainName: domainName);
+
+    final currentState = state.value;
+    if (currentState != null) {
+      final index = currentState.indexWhere((c) => c.id == id);
+      if (index != -1) {
+        final newList = [...currentState];
+        newList[index] = updatedCompany;
+        state = AsyncValue.data(newList);
+      }
+    }
+
+    ref.invalidate(companyDetailProvider(id));
+    return updatedCompany;
+  }
+
+  Future<void> deleteCompany(String id) async {
+    final isDemo = await ref.read(isDemoModeProvider.future);
+    if (isDemo) throw Exception('Demo mode: Modification is not allowed.');
+
+    final currentState = state.value;
+    List<Company>? previousState;
+
+    if (currentState != null) {
+      previousState = List.from(currentState);
+      final newList = currentState.where((c) => c.id != id).toList();
+      state = AsyncValue.data(newList);
+    }
+
+    try {
+      final repo = await ref.read(crmRepositoryProvider.future);
+      await repo.deleteCompany(id);
+
+      ref.invalidate(companyDetailProvider(id));
+      // Also potentially invalidate related contacts? (if they had this company linked)
+    } catch (e) {
+      if (previousState != null) {
+        state = AsyncValue.data(previousState);
+      } else {
+        ref.invalidateSelf();
+      }
+      rethrow;
+    }
+  }
 }
 
 @riverpod

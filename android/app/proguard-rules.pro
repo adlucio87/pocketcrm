@@ -15,3 +15,9 @@
 -keep class com.it_verify.flutter_secure_storage.** { *; }
 -dontwarn com.it_verify.flutter_secure_storage.**
 
+# Gson / TypeToken (fixes flutter_local_notifications scheduled notifications crash in Release/R8)
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
+-keep class com.google.gson.** { *; }

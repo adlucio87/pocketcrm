@@ -38,6 +38,8 @@ abstract class CRMRepository {
   Future<List<Company>> getCompanies({String? search, int page = 1});
   Future<Company> getCompanyById(String id);
   Future<Company> createCompany({required String name, String? domainName});
+  Future<Company> updateCompany(String id, {String? name, String? domainName});
+  Future<void> deleteCompany(String id);
 
   // Notes
   Future<List<Note>> getNotesByContact(String contactId);

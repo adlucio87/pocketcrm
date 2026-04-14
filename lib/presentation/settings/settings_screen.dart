@@ -71,7 +71,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        toolbarHeight: 0,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),

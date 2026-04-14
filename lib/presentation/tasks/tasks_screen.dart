@@ -49,7 +49,21 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tasks'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isShowingCompleted ? Icons.task_alt : Icons.history,
+              size: 20,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              isShowingCompleted ? 'Completed Tasks' : 'Recent Tasks',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             icon: Icon(

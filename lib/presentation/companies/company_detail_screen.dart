@@ -9,6 +9,9 @@ import 'package:pocketcrm/presentation/shared/note_card.dart';
 import 'package:pocketcrm/presentation/shared/skeleton_loading.dart';
 import 'package:pocketcrm/presentation/shared/snackbar_helper.dart';
 import 'package:pocketcrm/presentation/shared/error_state_widget.dart';
+import 'package:pocketcrm/core/utils/demo_utils.dart';
+import 'package:pocketcrm/presentation/shared/dialog_helper.dart';
+import 'package:pocketcrm/presentation/companies/companies_screen.dart';
 
 class CompanyDetailScreen extends ConsumerStatefulWidget {
   final String id;
@@ -25,7 +28,61 @@ class _CompanyDetailScreenState extends ConsumerState<CompanyDetailScreen> {
     final detailAsync = ref.watch(companyDetailProvider(widget.id));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Company Details')),
+      appBar: AppBar(
+        title: const Text('Company Details'),
+        actions: [
+          if (detailAsync.hasValue)
+            IconButton(
+              icon: const Icon(Icons.edit),
+              tooltip: 'Edit company',
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
+                  builder: (_) => EditCompanySheet(company: detailAsync.value!),
+                );
+              },
+            ),
+          if (detailAsync.hasValue)
+            IconButton(
+              icon: const Icon(Icons.delete),
+              tooltip: 'Delete company',
+              onPressed: () async {
+                if (!await DemoUtils.checkDemoAction(context, ref)) return;
+
+                final confirm = await DialogHelper.showDeleteConfirmDialog(
+                  context: context,
+                  title: 'Delete company',
+                  message:
+                      'Are you sure you want to delete ${detailAsync.value!.name}?\nThis action cannot be undone.',
+                );
+
+                if (confirm && context.mounted) {
+                  try {
+                    await ref
+                        .read(companiesProvider.notifier)
+                        .deleteCompany(widget.id);
+
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                      SnackbarHelper.showSuccess(context, 'Company deleted');
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      SnackbarHelper.showError(
+                        context,
+                        'Error during deletion',
+                      );
+                    }
+                  }
+                }
+              },
+            ),
+        ],
+      ),
       floatingActionButton: detailAsync.whenOrNull(
         data: (company) => FloatingActionButton.extended(
           onPressed: () {
