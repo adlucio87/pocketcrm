@@ -14,6 +14,7 @@ import 'package:pocketcrm/presentation/scan/scan_card_screen.dart';
 import 'package:pocketcrm/presentation/contacts/contacts_screen.dart';
 import 'package:pocketcrm/presentation/tasks/tasks_screen.dart';
 import 'package:pocketcrm/presentation/shared/error_state_widget.dart';
+import 'package:pocketcrm/shared/widgets/constrained_content.dart';
 
 class TodayScreen extends ConsumerWidget {
   const TodayScreen({super.key});
@@ -84,7 +85,7 @@ class TodayScreen extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () => ref.read(todayNotifierProvider.notifier).refresh(),
-        child: CustomScrollView(
+        child: ConstrainedContent(child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverAppBar(
@@ -321,7 +322,7 @@ class TodayScreen extends ConsumerWidget {
               ),
             ),
           ],
-        ),
+        )),
       ),
     );
   }

@@ -21,6 +21,7 @@ import 'package:pocketcrm/presentation/contact_detail/voice_note_sheet.dart';
 import 'package:pocketcrm/core/utils/demo_utils.dart';
 import 'package:pocketcrm/core/utils/color_utils.dart';
 import 'package:pocketcrm/presentation/shared/error_state_widget.dart';
+import 'package:pocketcrm/shared/widgets/constrained_content.dart';
 
 class ContactDetailScreen extends ConsumerStatefulWidget {
   final String id;
@@ -186,7 +187,8 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
 
   Widget _buildDetail(BuildContext context, Contact contact) {
     final bgColor = ColorUtils.avatarColor(contact.firstName);
-    return SingleChildScrollView(
+    return ConstrainedContent(
+      child: SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -366,6 +368,7 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
           _NotesList(contactId: contact.id),
         ],
       ),
+    ),
     );
   }
 }

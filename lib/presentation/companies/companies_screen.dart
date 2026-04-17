@@ -14,6 +14,7 @@ import 'package:pocketcrm/domain/models/company.dart';
 import 'package:pocketcrm/presentation/shared/snackbar_helper.dart';
 import 'package:pocketcrm/core/utils/demo_utils.dart';
 import 'package:pocketcrm/presentation/shared/swipe_action_wrapper.dart';
+import 'package:pocketcrm/shared/widgets/constrained_content.dart';
 import 'dart:async';
 
 class CompaniesScreen extends ConsumerStatefulWidget {
@@ -83,7 +84,7 @@ class _CompaniesScreenState extends ConsumerState<CompaniesScreen> {
         },
         child: const Icon(Icons.add),
       ),
-      body: companiesAsync.when(
+      body: ConstrainedContent(child: companiesAsync.when(
         data: (companies) {
           if (companies.isEmpty) {
             return RefreshIndicator(
@@ -254,7 +255,7 @@ class _CompaniesScreenState extends ConsumerState<CompaniesScreen> {
           message: err.toString().replaceAll('Exception: ', ''),
           onRetry: () => ref.invalidate(companiesProvider),
         ),
-      ),
+      )),
     );
   }
 }

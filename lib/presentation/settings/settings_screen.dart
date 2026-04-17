@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pocketcrm/core/notifications/notification_service.dart';
 import 'package:pocketcrm/core/di/providers.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:pocketcrm/shared/widgets/constrained_content.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -73,7 +74,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       appBar: AppBar(
         toolbarHeight: 0,
       ),
-      body: ListView(
+      body: ConstrainedContent(
+        maxWidth: 600,
+        child: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           const Text(
@@ -175,6 +178,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onTap: () => launchUrl(Uri.parse('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')),
           ),
         ],
+      ),
       ),
     );
   }

@@ -15,6 +15,7 @@ import 'package:pocketcrm/presentation/shared/swipe_action_wrapper.dart';
 import 'package:pocketcrm/presentation/shared/dialog_helper.dart';
 import 'package:pocketcrm/presentation/home/today_provider.dart';
 import 'package:pocketcrm/core/utils/demo_utils.dart';
+import 'package:pocketcrm/shared/widgets/constrained_content.dart';
 
 class TasksScreen extends ConsumerStatefulWidget {
   const TasksScreen({super.key});
@@ -76,7 +77,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
           ),
         ],
       ),
-      body: tasksAsync.when(
+      body: ConstrainedContent(child: tasksAsync.when(
         data: (tasks) {
           if (tasks.isEmpty) {
             return RefreshIndicator(
@@ -272,7 +273,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
         },
         loading: () => const ListSkeleton(),
         error: (err, stack) => Center(child: Text('Error: $err')),
-      ),
+      )),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           if (!await DemoUtils.checkDemoAction(context, ref)) return;

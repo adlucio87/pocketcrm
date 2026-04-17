@@ -87,6 +87,10 @@ class AppTheme {
       thickness: 1,
       space: 1,
     ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      constraints: BoxConstraints(maxWidth: 550),
+      showDragHandle: true,
+    ),
   );
 
   static ThemeData light() => ThemeData(
@@ -173,6 +177,10 @@ class AppTheme {
       color: AppColors.lightBorder,
       thickness: 1,
       space: 1,
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      constraints: BoxConstraints(maxWidth: 550),
+      showDragHandle: true,
     ),
   );
 

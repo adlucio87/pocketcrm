@@ -48,15 +48,15 @@
 		<key>ITSAppUsesNonExemptEncryption</key>
 		<false/>
 		<key>NSContactsUsageDescription</key>
-		<string>This app requires contacts access to import and export contacts.</string>
+		<string>TwentyMobile can save CRM contacts directly to your address book when you request it.</string>
 		<key>NSCameraUsageDescription</key>
-		<string>TwentyMobile usa la fotocamera per scansionare biglietti da visita</string>
+		<string>TwentyMobile uses the camera to scan business cards and create contacts automatically.</string>
 		<key>NSPhotoLibraryUsageDescription</key>
-		<string>TwentyMobile accede alla galleria per importare biglietti da visita</string>
+		<string>TwentyMobile accesses your photo library to import business card images for contact scanning.</string>
 		<key>NSSpeechRecognitionUsageDescription</key>
-		<string>TwentyMobile usa il riconoscimento vocale per trascrivere note vocali sui tuoi contatti</string>
+		<string>TwentyMobile uses speech recognition to transcribe voice notes for your contacts.</string>
 		<key>NSMicrophoneUsageDescription</key>
-		<string>TwentyMobile usa il microfono per registrare note vocali</string>
+		<string>TwentyMobile uses the microphone to record voice notes that are transcribed and saved to your contacts.</string>
 		<key>UIBackgroundModes</key>
 		<array>
 			<string>fetch</string>

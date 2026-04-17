@@ -14,6 +14,7 @@ import 'package:pocketcrm/core/utils/demo_utils.dart';
 import 'package:pocketcrm/core/utils/color_utils.dart';
 import 'package:pocketcrm/presentation/contacts/edit_contact_sheet.dart';
 import 'package:pocketcrm/presentation/shared/error_state_widget.dart';
+import 'package:pocketcrm/shared/widgets/constrained_content.dart';
 
 class ContactsScreen extends ConsumerStatefulWidget {
   const ContactsScreen({super.key});
@@ -78,7 +79,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         ),
         actions: const [],
       ),
-      body: contactsAsync.when(
+      body: ConstrainedContent(child: contactsAsync.when(
         data: (contacts) {
           if (contacts.isEmpty) {
             return RefreshIndicator(
@@ -217,7 +218,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
             ref.invalidate(contactsProvider);
           },
         ),
-      ),
+      )),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           if (!await DemoUtils.checkDemoAction(context, ref)) return;

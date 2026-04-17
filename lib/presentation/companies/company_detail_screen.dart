@@ -12,6 +12,7 @@ import 'package:pocketcrm/presentation/shared/error_state_widget.dart';
 import 'package:pocketcrm/core/utils/demo_utils.dart';
 import 'package:pocketcrm/presentation/shared/dialog_helper.dart';
 import 'package:pocketcrm/presentation/companies/companies_screen.dart';
+import 'package:pocketcrm/shared/widgets/constrained_content.dart';
 
 class CompanyDetailScreen extends ConsumerStatefulWidget {
   final String id;
@@ -109,7 +110,8 @@ class _CompanyDetailScreenState extends ConsumerState<CompanyDetailScreen> {
   }
 
   Widget _buildDetail(BuildContext context, Company company) {
-    return SingleChildScrollView(
+    return ConstrainedContent(
+      child: SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -186,6 +188,7 @@ class _CompanyDetailScreenState extends ConsumerState<CompanyDetailScreen> {
           _CompanyNotesList(companyId: company.id),
         ],
       ),
+    ),
     );
   }
 }
