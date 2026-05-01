@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:gql/language.dart' show parseString;
 import 'package:pocketcrm/domain/models/company.dart';
 import 'package:pocketcrm/domain/models/contact.dart';
 import 'package:pocketcrm/domain/models/note.dart';
@@ -16,26 +17,34 @@ class TwentyConnector implements CRMRepository {
 
   void _handleResultException(QueryResult result) {
     if (!result.hasException) return;
-    
+
     final exception = result.exception!;
     final linkException = exception.linkException;
-    
+
     // Log exception to Sentry (fire and forget)
     try {
-      Sentry.captureException(exception, stackTrace: StackTrace.current, hint: Hint.withMap({'operation': result.context.toString()}));
+      Sentry.captureException(
+        exception,
+        stackTrace: StackTrace.current,
+        hint: Hint.withMap({'operation': result.context.toString()}),
+      );
     } catch (_) {}
-    
+
     if (linkException != null) {
       final errorStr = linkException.toString();
-      if (errorStr.contains('SocketException') || 
-          errorStr.contains('NetworkError') || 
+      if (errorStr.contains('SocketException') ||
+          errorStr.contains('NetworkError') ||
           errorStr.contains('Connection closed')) {
-        throw Exception('It seems there\'s no internet connection. Please check your settings.');
+        throw Exception(
+          'It seems there\'s no internet connection. Please check your settings.',
+        );
       }
-      if (errorStr.contains('Connection refused') || 
-          errorStr.contains('404') || 
+      if (errorStr.contains('Connection refused') ||
+          errorStr.contains('404') ||
           errorStr.contains('Network unreachable')) {
-        throw Exception('The CRM endpoint is unreachable. Please verify the URL in settings.');
+        throw Exception(
+          'The CRM endpoint is unreachable. Please verify the URL in settings.',
+        );
       }
       throw Exception('Connection error: $errorStr');
     }
@@ -44,81 +53,94 @@ class TwentyConnector implements CRMRepository {
       final error = exception.graphqlErrors.first;
       final msg = error.message.toLowerCase();
       if (msg.contains('unauthorized') || msg.contains('forbidden')) {
-        throw Exception('Session expired or invalid token. Please reconnect in settings.');
+        throw Exception(
+          'Session expired or invalid token. Please reconnect in settings.',
+        );
+      }
+      if (msg.contains('cannot be executed as a single request') ||
+          msg.contains('query is too complex') ||
+          msg.contains('complexity limit')) {
+        throw Exception(
+          'Your Twenty instance has restrictive query limits. '
+          'Please update Twenty to the latest version, or contact your server administrator '
+          'to increase the GraphQL query complexity limit.',
+        );
       }
       throw Exception(error.message);
     }
-    
-    throw Exception('An unexpected error occurred while communicating with the server.');
+
+    throw Exception(
+      'An unexpected error occurred while communicating with the server.',
+    );
   }
 
-
-  @override
-  Future<bool> testConnection(String baseUrl, String apiToken) async {
+  static Future<bool> testConnection(String baseUrl, String apiToken) async {
     const String query = r'''
       query Me {
         workspaceMembers(first: 1) {
           edges {
             node {
-              id
+              name { firstName lastName }
             }
           }
         }
       }
     ''';
 
-    try {
-      final tempLink = HttpLink(
-        '$baseUrl/graphql',
-        defaultHeaders: {'Authorization': 'Bearer $apiToken'},
-      );
-      
-      final tempClient = GraphQLClient(
-        link: tempLink, 
-        cache: GraphQLCache(),
-      );
+    final tempLink = HttpLink(
+      '$baseUrl/graphql',
+      defaultHeaders: {'Authorization': 'Bearer $apiToken'},
+    );
 
-      final QueryResult result = await tempClient.query(
-        QueryOptions(
-          document: gql(query),
-          fetchPolicy: FetchPolicy.networkOnly,
-        ),
-      );
+    final tempClient = GraphQLClient(link: tempLink, cache: GraphQLCache());
 
-      if (result.hasException) {
-        final exception = result.exception!;
-        if (exception.graphqlErrors.isNotEmpty) {
-          final error = exception.graphqlErrors.first;
-          // Check for common auth errors
-          if (error.message.toLowerCase().contains('unauthorized') || 
-              error.message.toLowerCase().contains('forbidden')) {
-            throw Exception('Invalid API Token');
-          }
-          throw Exception(error.message);
+    final QueryResult result = await tempClient.query(
+      QueryOptions(document: parseString(query), fetchPolicy: FetchPolicy.networkOnly),
+    );
+
+    if (result.hasException) {
+      final exception = result.exception!;
+      if (exception.graphqlErrors.isNotEmpty) {
+        final error = exception.graphqlErrors.first;
+        final msg = error.message.toLowerCase();
+
+        if (msg.contains('unauthorized') || msg.contains('forbidden')) {
+          throw Exception('Invalid API Token');
         }
-        
-        if (exception.linkException != null) {
-          final linkError = exception.linkException.toString();
-          if (linkError.contains('404')) {
-            throw Exception('URL not found. Verify your Instance URL.');
-          }
-          if (linkError.contains('Connection refused') || linkError.contains('SocketException')) {
-            throw Exception('Server unreachable. Check your internet or URL.');
-          }
-          throw Exception('Network error: $linkError');
+
+        // If the server rejects the query due to complexity limits, it means
+        // the URL and the Token are actually valid (auth succeeded!).
+        // So we can safely consider the connection successful.
+        if (msg.contains('cannot be executed as a single request') ||
+            msg.contains('query is too complex') ||
+            msg.contains('complexity limit')) {
+          return true;
         }
-        
-        throw Exception('Something went wrong: ${exception.toString()}');
+
+        throw Exception(error.message);
       }
 
-      final edges = result.data?['workspaceMembers']?['edges'] as List?;
-      if (edges == null || edges.isEmpty) {
-        throw Exception('Connected, but no access to workspace.');
+      if (exception.linkException != null) {
+        final linkError = exception.linkException.toString();
+        if (linkError.contains('404')) {
+          throw Exception('URL not found. Verify your Instance URL.');
+        }
+        if (linkError.contains('Connection refused') ||
+            linkError.contains('SocketException')) {
+          throw Exception('Server unreachable. Check your internet or URL.');
+        }
+        throw Exception('Network error: $linkError');
       }
-      return true;
-    } catch (e) {
-      rethrow;
+
+      throw Exception('Something went wrong: ${exception.toString()}');
     }
+
+    final edges = result.data?['workspaceMembers']?['edges'] as List?;
+    if (edges == null || edges.isEmpty) {
+      throw Exception('Connected, but no access to workspace.');
+    }
+
+    return true;
   }
 
   @override
@@ -134,23 +156,20 @@ class TwentyConnector implements CRMRepository {
         }
       }
     ''';
-    final QueryOptions options = QueryOptions(document: gql(query));
+    final QueryOptions options = QueryOptions(document: parseString(query));
     final QueryResult result = await client.query(options);
 
     final edges = result.data?['workspaceMembers']?['edges'] as List?;
     if (edges == null || edges.isEmpty) return '';
-    
+
     final name = edges.first['node']?['name'];
     if (name == null) return '';
     return '${name['firstName']} ${name['lastName']}'.trim();
   }
 
   @override
-  Future<({List<Contact> contacts, String? endCursor, bool hasNextPage})> getContacts({
-    String? search,
-    int pageSize = 20,
-    String? after,
-  }) async {
+  Future<({List<Contact> contacts, String? endCursor, bool hasNextPage})>
+  getContacts({String? search, int pageSize = 20, String? after}) async {
     const String query = r'''
       query GetPeople($filter: PersonFilterInput, $first: Int, $after: String) {
         people(filter: $filter, first: $first, after: $after, orderBy: { createdAt: DescNullsLast }) {
@@ -175,14 +194,22 @@ class TwentyConnector implements CRMRepository {
     if (search != null && search.isNotEmpty) {
       filter = {
         'or': [
-          {'name': {'firstName': {'ilike': '%$search%'}}},
-          {'name': {'lastName': {'ilike': '%$search%'}}},
+          {
+            'name': {
+              'firstName': {'ilike': '%$search%'},
+            },
+          },
+          {
+            'name': {
+              'lastName': {'ilike': '%$search%'},
+            },
+          },
         ],
       };
     }
 
     final QueryOptions options = QueryOptions(
-      document: gql(query),
+      document: parseString(query),
       variables: {
         'first': pageSize,
         if (filter != null) 'filter': filter,
@@ -233,7 +260,7 @@ class TwentyConnector implements CRMRepository {
     ''';
 
     final QueryOptions options = QueryOptions(
-      document: gql(query),
+      document: parseString(query),
       variables: {'id': id},
     );
 
@@ -268,7 +295,7 @@ class TwentyConnector implements CRMRepository {
     ''';
 
     final QueryOptions options = QueryOptions(
-      document: gql(query),
+      document: parseString(query),
       variables: {
         'filter': {
           'companyId': {'eq': companyId},
@@ -312,7 +339,7 @@ class TwentyConnector implements CRMRepository {
     ''';
 
     final QueryOptions options = QueryOptions(
-      document: gql(query),
+      document: parseString(query),
       variables: {
         'filter': {
           'taskId': {'eq': taskId},
@@ -329,7 +356,11 @@ class TwentyConnector implements CRMRepository {
 
     return edges
         .where((e) => e['node']?['targetPerson'] != null)
-        .map((e) => Contact.fromTwenty(e['node']['targetPerson'] as Map<String, dynamic>))
+        .map(
+          (e) => Contact.fromTwenty(
+            e['node']['targetPerson'] as Map<String, dynamic>,
+          ),
+        )
         .toList();
   }
 
@@ -362,14 +393,16 @@ class TwentyConnector implements CRMRepository {
     final input = {
       'name': {'firstName': firstName, 'lastName': lastName},
       if (email != null) 'emails': {'primaryEmail': email},
-      if (phone != null) 'phones': {
-        'primaryPhoneNumber': phone,
-        if (phoneCountryCode != null) 'primaryPhoneCountryCode': phoneCountryCode,
-      },
+      if (phone != null)
+        'phones': {
+          'primaryPhoneNumber': phone,
+          if (phoneCountryCode != null)
+            'primaryPhoneCountryCode': phoneCountryCode,
+        },
     };
 
     final MutationOptions options = MutationOptions(
-      document: gql(mutation),
+      document: parseString(mutation),
       variables: {'input': input},
     );
 
@@ -423,7 +456,8 @@ class TwentyConnector implements CRMRepository {
 
       input['phones'] = {
         'primaryPhoneNumber': phone,
-        if (phoneCountryCode != null) 'primaryPhoneCountryCode': phoneCountryCode,
+        if (phoneCountryCode != null)
+          'primaryPhoneCountryCode': phoneCountryCode,
       };
     }
     if (clearCompany) {
@@ -433,7 +467,7 @@ class TwentyConnector implements CRMRepository {
     }
 
     final MutationOptions options = MutationOptions(
-      document: gql(mutation),
+      document: parseString(mutation),
       variables: {'id': id, 'input': input},
     );
 
@@ -454,7 +488,7 @@ class TwentyConnector implements CRMRepository {
     ''';
 
     final MutationOptions options = MutationOptions(
-      document: gql(mutation),
+      document: parseString(mutation),
       variables: {'id': id},
     );
 
@@ -463,7 +497,10 @@ class TwentyConnector implements CRMRepository {
   }
 
   @override
-  Future<Company> createCompany({required String name, String? domainName}) async {
+  Future<Company> createCompany({
+    required String name,
+    String? domainName,
+  }) async {
     const String mutation = r'''
       mutation CreateCompany($input: CompanyCreateInput!) {
         createCompany(data: $input) {
@@ -475,15 +512,13 @@ class TwentyConnector implements CRMRepository {
       }
     ''';
 
-    final input = <String, dynamic>{
-      'name': name,
-    };
+    final input = <String, dynamic>{'name': name};
     if (domainName != null && domainName.isNotEmpty) {
       input['domainName'] = {'primaryLinkUrl': domainName};
     }
 
     final MutationOptions options = MutationOptions(
-      document: gql(mutation),
+      document: parseString(mutation),
       variables: {'input': input},
     );
 
@@ -497,7 +532,11 @@ class TwentyConnector implements CRMRepository {
   }
 
   @override
-  Future<Company> updateCompany(String id, {String? name, String? domainName}) async {
+  Future<Company> updateCompany(
+    String id, {
+    String? name,
+    String? domainName,
+  }) async {
     const String mutation = r'''
       mutation UpdateCompany($id: UUID!, $input: CompanyUpdateInput!) {
         updateCompany(id: $id, data: $input) {
@@ -512,12 +551,14 @@ class TwentyConnector implements CRMRepository {
     final input = <String, dynamic>{};
     if (name != null) input['name'] = name;
     if (domainName != null) {
-       // Support clearing domain by providing empty string
-       input['domainName'] = domainName.isEmpty ? null : {'primaryLinkUrl': domainName};
+      // Support clearing domain by providing empty string
+      input['domainName'] = domainName.isEmpty
+          ? null
+          : {'primaryLinkUrl': domainName};
     }
 
     final MutationOptions options = MutationOptions(
-      document: gql(mutation),
+      document: parseString(mutation),
       variables: {'id': id, 'input': input},
     );
 
@@ -538,7 +579,7 @@ class TwentyConnector implements CRMRepository {
     ''';
 
     final MutationOptions options = MutationOptions(
-      document: gql(mutation),
+      document: parseString(mutation),
       variables: {'id': id},
     );
 
@@ -568,14 +609,20 @@ class TwentyConnector implements CRMRepository {
     if (search != null && search.isNotEmpty) {
       filter = {
         'or': [
-          {'name': {'like': '%$search%'}},
-          {'domainName': {'primaryLinkUrl': {'like': '%$search%'}}},
+          {
+            'name': {'like': '%$search%'},
+          },
+          {
+            'domainName': {
+              'primaryLinkUrl': {'like': '%$search%'},
+            },
+          },
         ],
       };
     }
 
     final QueryOptions options = QueryOptions(
-      document: gql(query),
+      document: parseString(query),
       variables: {'first': 20, if (filter != null) 'filter': filter},
       fetchPolicy: FetchPolicy.networkOnly,
     );
@@ -610,7 +657,7 @@ class TwentyConnector implements CRMRepository {
     ''';
 
     final QueryOptions options = QueryOptions(
-      document: gql(query),
+      document: parseString(query),
       variables: {'id': id},
       fetchPolicy: FetchPolicy.networkOnly,
     );
@@ -640,7 +687,7 @@ class TwentyConnector implements CRMRepository {
     ''';
 
     final QueryOptions options = QueryOptions(
-      document: gql(query),
+      document: parseString(query),
       variables: {'companyId': companyId},
       fetchPolicy: FetchPolicy.networkOnly,
     );
@@ -678,7 +725,7 @@ class TwentyConnector implements CRMRepository {
     ''';
 
     final QueryOptions options = QueryOptions(
-      document: gql(query),
+      document: parseString(query),
       variables: {'personId': contactId},
       fetchPolicy: FetchPolicy.networkOnly,
     );
@@ -716,19 +763,17 @@ class TwentyConnector implements CRMRepository {
       {
         "type": "paragraph",
         "content": [
-          {"type": "text", "text": body, "styles": {}}
-        ]
-      }
+          {"type": "text", "text": body, "styles": {}},
+        ],
+      },
     ]);
 
     final input = <String, dynamic>{
-      'bodyV2': {
-        'blocknote': blockNodeJson,
-      }
+      'bodyV2': {'blocknote': blockNodeJson},
     };
 
     final MutationOptions options = MutationOptions(
-      document: gql(mutation),
+      document: parseString(mutation),
       variables: {'input': input},
     );
 
@@ -745,7 +790,7 @@ class TwentyConnector implements CRMRepository {
     ''';
     final targetInput = {'noteId': note.id, 'targetPersonId': contactId};
     final MutationOptions targetOptions = MutationOptions(
-      document: gql(targetMutation),
+      document: parseString(targetMutation),
       variables: {'input': targetInput},
     );
     final targetResult = await client.mutate(targetOptions);
@@ -774,28 +819,24 @@ class TwentyConnector implements CRMRepository {
       {
         "type": "paragraph",
         "content": [
-          {"type": "text", "text": body, "styles": {}}
-        ]
-      }
+          {"type": "text", "text": body, "styles": {}},
+        ],
+      },
     ]);
 
     final input = <String, dynamic>{
-      'bodyV2': {
-        'blocknote': blockNodeJson,
-      }
+      'bodyV2': {'blocknote': blockNodeJson},
     };
 
     final MutationOptions options = MutationOptions(
-      document: gql(mutation),
+      document: parseString(mutation),
       variables: {'id': id, 'input': input},
     );
 
     final QueryResult result = await client.mutate(options);
     _handleResultException(result);
 
-    return Note.fromTwenty(
-      result.data?['updateNote'] as Map<String, dynamic>,
-    );
+    return Note.fromTwenty(result.data?['updateNote'] as Map<String, dynamic>);
   }
 
   @override
@@ -807,7 +848,7 @@ class TwentyConnector implements CRMRepository {
     ''';
 
     final MutationOptions options = MutationOptions(
-      document: gql(mutation),
+      document: parseString(mutation),
       variables: {'id': id},
     );
 
@@ -820,7 +861,8 @@ class TwentyConnector implements CRMRepository {
     final now = DateTime.now();
     final startOfToday = DateTime(now.year, now.month, now.day);
 
-    final String query = '''
+    final String query =
+        '''
       query GetOverdueTasks {
         tasks(
           filter: {
@@ -837,7 +879,7 @@ class TwentyConnector implements CRMRepository {
     ''';
 
     final options = QueryOptions(
-      document: gql(query),
+      document: parseString(query),
       fetchPolicy: FetchPolicy.networkOnly,
     );
 
@@ -861,7 +903,8 @@ class TwentyConnector implements CRMRepository {
     final startOfToday = DateTime(now.year, now.month, now.day);
     final endOfToday = startOfToday.add(const Duration(days: 1));
 
-    final String query = '''
+    final String query =
+        '''
       query GetTodayTasks {
         tasks(
           filter: {
@@ -879,7 +922,7 @@ class TwentyConnector implements CRMRepository {
     ''';
 
     final options = QueryOptions(
-      document: gql(query),
+      document: parseString(query),
       fetchPolicy: FetchPolicy.networkOnly,
     );
 
@@ -900,10 +943,15 @@ class TwentyConnector implements CRMRepository {
   @override
   Future<List<Task>> getTomorrowTasks() async {
     final now = DateTime.now();
-    final startOfTomorrow = DateTime(now.year, now.month, now.day).add(const Duration(days: 1));
+    final startOfTomorrow = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).add(const Duration(days: 1));
     final endOfTomorrow = startOfTomorrow.add(const Duration(days: 1));
 
-    final String query = '''
+    final String query =
+        '''
       query GetTomorrowTasks {
         tasks(
           filter: {
@@ -921,7 +969,7 @@ class TwentyConnector implements CRMRepository {
     ''';
 
     final options = QueryOptions(
-      document: gql(query),
+      document: parseString(query),
       fetchPolicy: FetchPolicy.networkOnly,
     );
 
@@ -960,7 +1008,7 @@ class TwentyConnector implements CRMRepository {
     ''';
 
     final options = QueryOptions(
-      document: gql(query),
+      document: parseString(query),
       variables: {'first': limit},
       fetchPolicy: FetchPolicy.networkOnly,
     );
@@ -998,7 +1046,7 @@ class TwentyConnector implements CRMRepository {
     }
 
     final QueryOptions options = QueryOptions(
-      document: gql(query),
+      document: parseString(query),
       variables: {if (filter != null) 'filter': filter},
       fetchPolicy: FetchPolicy.networkOnly,
     );
@@ -1027,21 +1075,17 @@ class TwentyConnector implements CRMRepository {
       }
     ''';
 
-    final input = <String, dynamic>{
-      'title': title,
-    };
+    final input = <String, dynamic>{'title': title};
     if (body != null) {
       final blockNodeJson = jsonEncode([
         {
           "type": "paragraph",
           "content": [
-            {"type": "text", "text": body, "styles": {}}
-          ]
-        }
+            {"type": "text", "text": body, "styles": {}},
+          ],
+        },
       ]);
-      input['bodyV2'] = {
-        'blocknote': blockNodeJson,
-      };
+      input['bodyV2'] = {'blocknote': blockNodeJson};
     }
     if (dueAt != null) {
       final utcDueAt = dueAt.toUtc();
@@ -1049,7 +1093,7 @@ class TwentyConnector implements CRMRepository {
     }
 
     final MutationOptions options = MutationOptions(
-      document: gql(mutation),
+      document: parseString(mutation),
       variables: {'input': input},
     );
 
@@ -1066,7 +1110,7 @@ class TwentyConnector implements CRMRepository {
         ''';
         final targetInput = {'taskId': taskId, 'targetPersonId': contactId};
         final MutationOptions targetOptions = MutationOptions(
-          document: gql(targetMutation),
+          document: parseString(targetMutation),
           variables: {'input': targetInput},
         );
         final targetResult = await client.mutate(targetOptions);
@@ -1078,7 +1122,7 @@ class TwentyConnector implements CRMRepository {
       }
     }
     final data = result.data?['createTask'];
-    
+
     return Task.fromTwenty(data);
   }
 
@@ -1107,13 +1151,11 @@ class TwentyConnector implements CRMRepository {
         {
           "type": "paragraph",
           "content": [
-            {"type": "text", "text": body, "styles": {}}
-          ]
-        }
+            {"type": "text", "text": body, "styles": {}},
+          ],
+        },
       ]);
-      input['bodyV2'] = {
-        'blocknote': blockNodeJson,
-      };
+      input['bodyV2'] = {'blocknote': blockNodeJson};
     }
     if (clearDueDate) {
       input['dueAt'] = null;
@@ -1126,18 +1168,15 @@ class TwentyConnector implements CRMRepository {
     // For now we just send what is provided.
 
     final MutationOptions options = MutationOptions(
-      document: gql(mutation),
-      variables: {
-        'id': id,
-        'input': input,
-      },
+      document: parseString(mutation),
+      variables: {'id': id, 'input': input},
     );
 
     final QueryResult result = await client.mutate(options);
     _handleResultException(result);
 
     final data = result.data?['updateTask'];
-    
+
     return Task.fromTwenty(data);
   }
 
@@ -1150,7 +1189,7 @@ class TwentyConnector implements CRMRepository {
     ''';
 
     final MutationOptions options = MutationOptions(
-      document: gql(mutation),
+      document: parseString(mutation),
       variables: {'id': id},
     );
 

@@ -19,6 +19,7 @@ class _ApiTokenScreenState extends ConsumerState<ApiTokenScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   String? _error;
+  bool _isTesting = false;
 
   @override
   void initState() {
@@ -92,8 +93,10 @@ class _ApiTokenScreenState extends ConsumerState<ApiTokenScreen> {
   }
 
   Future<void> _testConnection() async {
+    if (_isTesting) return;
     if (!_formKey.currentState!.validate()) return;
 
+    _isTesting = true;
     setState(() {
       _isLoading = true;
       _error = null;
@@ -106,15 +109,7 @@ class _ApiTokenScreenState extends ConsumerState<ApiTokenScreen> {
 
       final token = _controller.text.trim();
 
-      // Test validation: creiamo un connector "usa e getta" per il test
-      final repo = TwentyConnector(
-        client: GraphQLClient(
-          link: HttpLink(''), // dummy link for construction
-          cache: GraphQLCache(),
-        ),
-      );
-      
-      await repo.testConnection(baseUrl, token);
+      await TwentyConnector.testConnection(baseUrl, token);
 
       // Salva il token e aggiorna authState → il router si occuperà del redirect
       await ref.read(authStateProvider.notifier).login(token);
@@ -132,6 +127,7 @@ class _ApiTokenScreenState extends ConsumerState<ApiTokenScreen> {
         setState(() => _error = message);
       }
     } finally {
+      _isTesting = false;
       if (mounted) {
         setState(() => _isLoading = false);
       }

@@ -23,19 +23,54 @@ class TodayNotifier extends _$TodayNotifier {
     final startOfTomorrow = endOfToday;
     final endOfTomorrow = startOfTomorrow.add(const Duration(days: 1));
 
-    // Esegui tutte le query in parallelo
-    final results = await Future.wait([
-      repo.getOverdueTasks(),           // dueAt < oggi, status != DONE
-      repo.getTodayTasks(),             // dueAt = oggi, status != DONE
-      repo.getTomorrowTasks(),          // dueAt = domani, status != DONE
-      repo.getRecentContacts(limit: 5), // ultimi 5 per updatedAt
-    ]);
+    // Isoliamo ogni chiamata con un try/catch per capire ESATTAMENTE
+    // quale query fa arrabbiare il complexity limiter di Twenty.
+    final List<Task> overdueTasks = [];
+    final List<Task> todayTasks = [];
+    final List<Task> tomorrowTasks = [];
+    final List<Contact> recentContacts = [];
+
+    try {
+      print('>>> [1/4] TEST: Fetching overdueTasks...');
+      final res = await repo.getOverdueTasks();
+      overdueTasks.addAll(res);
+      print('>>> [1/4] SUCCESS: overdueTasks');
+    } catch (e) {
+      print('>>> [1/4] ERROR: overdueTasks failed: $e');
+    }
+
+    try {
+      print('>>> [2/4] TEST: Fetching todayTasks...');
+      final res = await repo.getTodayTasks();
+      todayTasks.addAll(res);
+      print('>>> [2/4] SUCCESS: todayTasks');
+    } catch (e) {
+      print('>>> [2/4] ERROR: todayTasks failed: $e');
+    }
+
+    try {
+      print('>>> [3/4] TEST: Fetching tomorrowTasks...');
+      final res = await repo.getTomorrowTasks();
+      tomorrowTasks.addAll(res);
+      print('>>> [3/4] SUCCESS: tomorrowTasks');
+    } catch (e) {
+      print('>>> [3/4] ERROR: tomorrowTasks failed: $e');
+    }
+
+    try {
+      print('>>> [4/4] TEST: Fetching recentContacts...');
+      final res = await repo.getRecentContacts(limit: 5);
+      recentContacts.addAll(res);
+      print('>>> [4/4] SUCCESS: recentContacts');
+    } catch (e) {
+      print('>>> [4/4] ERROR: recentContacts failed: $e');
+    }
 
     return TodayData(
-      overdueTasks: results[0] as List<Task>,
-      todayTasks: results[1] as List<Task>,
-      tomorrowTasks: results[2] as List<Task>,
-      recentContacts: results[3] as List<Contact>,
+      overdueTasks: overdueTasks,
+      todayTasks: todayTasks,
+      tomorrowTasks: tomorrowTasks,
+      recentContacts: recentContacts,
     );
   }
 

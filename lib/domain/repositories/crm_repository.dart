@@ -5,7 +5,6 @@ import 'package:pocketcrm/domain/models/task.dart';
 
 abstract class CRMRepository {
   // Auth
-  Future<bool> testConnection(String baseUrl, String apiToken);
   Future<String> getCurrentUserName();
 
   // Contacts
