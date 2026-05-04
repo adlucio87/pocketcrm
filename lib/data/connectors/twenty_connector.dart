@@ -47,6 +47,11 @@ class TwentyConnector implements CRMRepository {
           'The CRM endpoint is unreachable. Please verify the URL in settings.',
         );
       }
+      if (errorStr.contains('TimeoutException')) {
+        throw Exception(
+          'The server took too long to respond. Please try again later.',
+        );
+      }
       throw Exception('Connection error: $errorStr');
     }
 
