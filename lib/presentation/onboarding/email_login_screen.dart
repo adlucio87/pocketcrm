@@ -132,12 +132,14 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                     padding: const EdgeInsets.all(24.0),
                     child: Form(
                       key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
+                      child: AutofillGroup(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
+                        autofillHints: const [AutofillHints.email],
                         decoration: const InputDecoration(
                           labelText: 'Email',
                           hintText: 'Enter your email',
@@ -155,6 +157,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                       TextFormField(
                         controller: _passwordController,
                         obscureText: _obscureText,
+                        autofillHints: const [AutofillHints.password],
                         decoration: InputDecoration(
                           labelText: 'Password',
                           hintText: 'Enter your password',
@@ -222,7 +225,8 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                       const SizedBox(height: 24),
                     ],
                   ),
-                    ),
+                        ),
+                      ),
                   ),
                 ),
               ),
