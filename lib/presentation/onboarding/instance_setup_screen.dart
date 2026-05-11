@@ -71,10 +71,11 @@ class _InstanceSetupScreenState extends ConsumerState<InstanceSetupScreen> {
                     padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              OutlinedButton.icon(
+          child: AutofillGroup(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                OutlinedButton.icon(
                 onPressed: _isDemoLoading ? null : _connectDemo,
                 icon: _isDemoLoading
                     ? const SizedBox(
@@ -117,6 +118,7 @@ class _InstanceSetupScreenState extends ConsumerState<InstanceSetupScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _controller,
+                autofillHints: const [AutofillHints.url],
                 decoration: const InputDecoration(
                   labelText: 'Instance URL',
                   hintText: 'e.g. http://localhost:3000',
@@ -180,6 +182,7 @@ class _InstanceSetupScreenState extends ConsumerState<InstanceSetupScreen> {
               const SizedBox(height: 24),
             ],
           ),
+            ),
         ),
                   ),
                 ),
