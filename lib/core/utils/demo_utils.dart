@@ -33,55 +33,65 @@ class DemoUtils {
   static void showDemoBlockSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
       builder: (context) => const _DemoBlockSheet(),
     );
   }
+
 }
 
-class _DemoBlockSheet extends StatelessWidget {
+class _DemoBlockSheet extends ConsumerWidget {
   const _DemoBlockSheet();
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text('🔒', style: TextStyle(fontSize: 48)),
-          const SizedBox(height: 16),
-          const Text(
-            'Feature not available in demo',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('🔒', style: TextStyle(fontSize: 48)),
+              const SizedBox(height: 16),
+              const Text(
+                'Feature not available in demo',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Connect your Twenty instance to use all TwentyMobile features.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Reset session and navigate back to onboarding
+                    ref.read(authStateProvider.notifier).logout();
+                    context.pop();
+                    context.go('/onboarding/instance');
+                  },
+                  child: const Text('Connect my instance'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () => context.pop(),
+                  child: const Text('Continue in demo'),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          const Text(
-            'Connect your Twenty instance to use all TwentyMobile features.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey),
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                context.pop();
-                context.go('/onboarding/instance');
-              },
-              child: const Text('Connect my instance'),
-            ),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: TextButton(
-              onPressed: () => context.pop(),
-              child: const Text('Continue in demo'),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
+
