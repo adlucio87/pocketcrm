@@ -21,6 +21,14 @@ class TwentyConnector implements CRMRepository {
   final VoidCallback? onTokenRefreshed;
   String? _currentMemberId;
 
+  static final Map<String, CountryCode> _dialCodeMap = (() {
+    final map = <String, CountryCode>{};
+    for (var c in countryCodes) {
+      map.putIfAbsent(c.dialCode, () => c);
+    }
+    return map;
+  })();
+
   /// Mutex for token refresh — prevents concurrent refresh attempts
   Future<bool>? _refreshFuture;
 
@@ -579,9 +587,9 @@ class TwentyConnector implements CRMRepository {
     String? phoneCountryCode;
     if (phone != null) {
       final parsed = PhoneInputField.parseE164(phone);
-      final match = countryCodes.where((c) => c.dialCode == parsed.$1).toList();
-      if (match.isNotEmpty) {
-        phoneCountryCode = match.first.isoCode;
+      final match = _dialCodeMap[parsed.$1];
+      if (match != null) {
+        phoneCountryCode = match.isoCode;
       }
     }
 
@@ -644,9 +652,9 @@ class TwentyConnector implements CRMRepository {
     if (phone != null) {
       String? phoneCountryCode;
       final parsed = PhoneInputField.parseE164(phone);
-      final match = countryCodes.where((c) => c.dialCode == parsed.$1).toList();
-      if (match.isNotEmpty) {
-        phoneCountryCode = match.first.isoCode;
+      final match = _dialCodeMap[parsed.$1];
+      if (match != null) {
+        phoneCountryCode = match.isoCode;
       }
 
       input['phones'] = {
