@@ -1,4 +1,5 @@
 // Schermata di review con campi pre-compilati editabili
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -28,7 +29,9 @@ class _ScanReviewScreenState extends ConsumerState<ScanReviewScreen> {
     super.initState();
     final state = ref.read(scanNotifierProvider);
     final data = state.parsedData;
-    print('REVIEW: initState - status: ${state.status}, data: $data');
+    if (kDebugMode) {
+      print('REVIEW: initState - status: ${state.status}, data: $data');
+    }
     _firstName = TextEditingController(text: data?.firstName ?? '');
     _lastName = TextEditingController(text: data?.lastName ?? '');
     _email = TextEditingController(text: data?.email ?? '');
@@ -40,7 +43,10 @@ class _ScanReviewScreenState extends ConsumerState<ScanReviewScreen> {
   @override
   Widget build(BuildContext context) {
     final scanState = ref.watch(scanNotifierProvider);
-    print('REVIEW: build - status: ${scanState.status}, data: ${scanState.parsedData}');
+    if (kDebugMode) {
+      print(
+          'REVIEW: build - status: ${scanState.status}, data: ${scanState.parsedData}');
+    }
 
     // Mostra loading se ancora in elaborazione
     if (scanState.status == ScanStatus.processing) {
