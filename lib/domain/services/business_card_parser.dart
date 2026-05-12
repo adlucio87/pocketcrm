@@ -3,7 +3,8 @@ class BusinessCardParser {
   static BusinessCardData parse(String rawText) {
     // Normalize text: remove odd characters, normalize spaces
     final lines = _normalizeText(rawText);
-    print('PARSER: Normalized ${lines.length} lines');
+    // Removed PII-related logging or wrapped in kDebugMode
+    // print('PARSER: Normalized ${lines.length} lines');
 
     return BusinessCardData(
       firstName: _extractFirstName(lines),
