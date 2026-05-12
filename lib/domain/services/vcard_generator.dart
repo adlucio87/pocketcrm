@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:pocketcrm/domain/models/contact.dart';
 
 class VCardGenerator {
@@ -39,7 +40,11 @@ class VCardGenerator {
       if (jobTitle != null && jobTitle.isNotEmpty) {
         buffer.writeln('TITLE:${_escape(jobTitle)}');
       }
-    } catch (_) {}
+    } on NoSuchMethodError catch (_) {
+      // Field doesn't exist on Contact model, skip gracefully
+    } catch (e) {
+      debugPrint('Error generating vCard TITLE: $e');
+    }
 
     if (contact.email != null && contact.email!.isNotEmpty) {
       buffer.writeln('EMAIL;TYPE=INTERNET:${_escape(contact.email!)}');
@@ -55,21 +60,33 @@ class VCardGenerator {
       if (website != null && website.isNotEmpty) {
         buffer.writeln('URL:${_escape(website)}');
       }
-    } catch (_) {}
+    } on NoSuchMethodError catch (_) {
+      // skip
+    } catch (e) {
+      debugPrint('Error generating vCard URL: $e');
+    }
 
     try {
       final String? linkedin = dynContact.linkedin;
       if (linkedin != null && linkedin.isNotEmpty) {
         buffer.writeln('URL;TYPE=LinkedIn:${_escape(linkedin)}');
       }
-    } catch (_) {}
+    } on NoSuchMethodError catch (_) {
+      // skip
+    } catch (e) {
+      debugPrint('Error generating vCard LinkedIn URL: $e');
+    }
 
     try {
       final String? city = dynContact.city;
       if (city != null && city.isNotEmpty) {
         buffer.writeln('ADR;TYPE=HOME:;;${_escape(city)};;;;');
       }
-    } catch (_) {}
+    } on NoSuchMethodError catch (_) {
+      // skip
+    } catch (e) {
+      debugPrint('Error generating vCard ADR: $e');
+    }
 
     buffer.writeln('NOTE:Aggiunto da TwentyMobile');
     buffer.writeln('END:VCARD');
