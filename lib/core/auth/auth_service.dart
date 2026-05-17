@@ -350,6 +350,7 @@ class AuthService {
     return GraphQLClient(
       link: link,
       cache: GraphQLCache(),
+      queryRequestTimeout: const Duration(seconds: 30),
     );
   }
 
@@ -365,6 +366,7 @@ class AuthService {
     return GraphQLClient(
       link: link,
       cache: GraphQLCache(),
+      queryRequestTimeout: const Duration(seconds: 30),
     );
   }
 }

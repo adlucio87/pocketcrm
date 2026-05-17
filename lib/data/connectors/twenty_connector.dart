@@ -254,7 +254,11 @@ class TwentyConnector implements CRMRepository {
       httpClient: customHttpClient,
     );
 
-    final tempClient = GraphQLClient(link: tempLink, cache: GraphQLCache());
+    final tempClient = GraphQLClient(
+      link: tempLink,
+      cache: GraphQLCache(),
+      queryRequestTimeout: const Duration(seconds: 30),
+    );
 
     final QueryResult result = await tempClient.query(
       QueryOptions(

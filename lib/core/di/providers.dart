@@ -82,7 +82,11 @@ Future<CRMRepository> crmRepository(CrmRepositoryRef ref) async {
 
   final link = authLink.concat(httpLink);
 
-  final client = GraphQLClient(link: link, cache: GraphQLCache());
+  final client = GraphQLClient(
+    link: link,
+    cache: GraphQLCache(),
+    queryRequestTimeout: const Duration(seconds: 30),
+  );
   final authService = ref.read(authServiceProvider);
 
   return TwentyConnector(
